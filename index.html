@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carbon Trajectory tool</title> <script src="https://cdn.tailwindcss.com"></script>
+    <title>Carbon Trajectory tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +27,7 @@
         .modal-measures-container::-webkit-scrollbar-track { background: #e0f2fe; border-radius: 10px; }
         .modal-measures-container::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 10px; }
 
-        /* --- Home Section Styling --- */
+        /* --- Home Section Styles (Unchanged) --- */
         #home-section { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center; padding: 2rem; position: relative; overflow: hidden; background-color: #f0f9ff; transition: background 0.3s ease-out; }
         #home-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #bae6fd 0%, #e0f2fe 40%, #f0f9ff 70%); z-index: -1; transition: background 0.2s linear; }
         .home-title { font-size: 3rem; font-weight: 800; color: #0c4a6e; margin-bottom: 0.5rem; line-height: 1.1; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
@@ -143,7 +144,7 @@
                  <div class="macc-chart-container"><canvas id="maccChart"></canvas></div>
                  <p class="text-xs text-slate-500 mt-4 text-center">
                      *X-axis shows measures sorted by MAC ($/tCO2eq). Bar height shows MAC.<br>
-                     *Calculations use **annualized** cost ((CAPEX/Lifecycle) + OPEX) and **annual** abatement (Baseline*Reduction%), without discounting.
+                     *Calculations use **annualized** cost ((CAPEX/Lifecycle) + OPEX) and **annual** abatement (Baseline Scope*Reduction%), without discounting.
                  </p>
             </div>
         </div>
@@ -309,7 +310,7 @@
         }
 
         // --- Calculation & Data ---
-        function calculateAllData() { /* ... (SBTi logic updated) ... */
+        function calculateAllData() {
              if (!isToolInitialized) return;
              console.log("[calculateAllData] Starting calculation...");
              const totalBaselineEmissions = baselineData.scope1 + baselineData.scope2;
@@ -331,7 +332,7 @@
              }
              // ** SBTi Baseline Year Check **
              let useSBTiLogic = isSBTiAligned;
-             if (isSBTiAligned && nearTermTargetYear > 2050) { // Check if near-term target is feasible
+             if (isSBTiAligned && nearTermTargetYear > 2050) {
                  console.warn(`[calculateAllData] SBTi alignment selected, but Near-Term Target Year (${nearTermTargetYear}) is beyond 2050. Reverting to manual target.`);
                  sbtiCheckbox.checked = false;
                  targetReductionInput.disabled = false;
@@ -369,18 +370,14 @@
                      } else if (year <= nearTermTargetYear) {
                          // Linear interpolation: Base Year -> Near-Term Target Year
                          const yearsToNearTerm = nearTermTargetYear - baselineYear;
-                         // Ensure yearsToNearTerm is positive to avoid division by zero or incorrect ratio
                          const progressRatio = yearsToNearTerm > 0 ? Math.max(0, Math.min(1, (year - baselineYear) / yearsToNearTerm)) : 1;
                          const linearTarget = totalBaselineEmissions + (sbtiNearTermLevel - totalBaselineEmissions) * progressRatio;
                          targetEmissions.push(Math.max(0, linearTarget));
                      } else { // year > nearTermTargetYear
                          // Linear interpolation: Near-Term Target Year -> 2050
                          const yearsTo2050 = endYear - nearTermTargetYear;
-                          // Get the calculated target level at the nearTermTargetYear index
                          const nearTermIndex = years.indexOf(nearTermTargetYear);
-                         // Ensure index is valid and targetEmissions has data at that index
-                         const startLevel = (nearTermIndex !== -1 && targetEmissions[nearTermIndex] !== undefined) ? targetEmissions[nearTermIndex] : sbtiNearTermLevel; // Use calculated value if index exists
-
+                         const startLevel = (nearTermIndex !== -1 && targetEmissions[nearTermIndex] !== undefined) ? targetEmissions[nearTermIndex] : sbtiNearTermLevel;
                          const progressRatio = yearsTo2050 > 0 ? Math.max(0, Math.min(1, (year - nearTermTargetYear) / yearsTo2050)) : 1;
                          const linearTarget = startLevel + (sbtiLongTermLevel - startLevel) * progressRatio;
                          targetEmissions.push(Math.max(0, linearTarget));
@@ -403,35 +400,56 @@
                  }
              }
 
-             // Calculate Scenarios using scenariosDataStore
+             // ** Calculate Scenarios using scenariosDataStore & Scope Logic **
              const scenariosData = getAllScenariosData();
              const scenarioTrajectories = [];
              scenariosData.forEach(scenario => {
-                 const scenarioEmissions = []; const measures = scenario.measures;
+                 const scenarioEmissions = [];
+                 const measures = scenario.measures;
                  for (let i = 0; i < years.length; i++) {
-                     const currentYear = years[i]; const currentBau = bauEmissions[i]; let yearMultiplier = 1.0;
+                     const currentYear = years[i];
+                     const currentBau = bauEmissions[i];
+                     let totalYearlyReduction = 0; // Start with zero reduction for the year
+
                      measures.forEach(measure => {
                          const endMeasureYear = measure.startYear + measure.lifecycle - 1;
+                         // Check if measure is active in the current year
                          if (currentYear >= measure.startYear && currentYear <= endMeasureYear) {
-                             const validReduction = Math.max(0, Math.min(100, measure.reduction));
-                             yearMultiplier *= (1 - validReduction / 100);
+                             const reductionPercent = measure.reduction / 100;
+                             let absoluteReduction = 0;
+                             // Apply reduction to the correct baseline scope
+                             if (measure.scope === 'Scope 1') {
+                                 absoluteReduction = (baselineData.scope1 || 0) * reductionPercent;
+                             } else if (measure.scope === 'Scope 2') {
+                                 absoluteReduction = (baselineData.scope2 || 0) * reductionPercent;
+                             }
+                             // Add this measure's absolute reduction to the yearly total
+                             totalYearlyReduction += absoluteReduction;
                          }
                      });
-                     scenarioEmissions.push(Math.max(0, currentBau * yearMultiplier));
+                     // Subtract the total absolute reduction from the BAU for that year
+                     scenarioEmissions.push(Math.max(0, currentBau - totalYearlyReduction));
                  }
                  scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions });
              });
-             // Pass target levels to update function
              updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories, useSBTiLogic ? sbtiNearTermLevel : null, useSBTiLogic ? sbtiLongTermLevel : null);
 
-             // Calculate MACC Data (Simplified Bar Chart)
+             // ** Calculate MACC Data (Using Annual Abatement & Scope Logic) **
              let processedMaccData = [];
              if (scenariosDataStore.length > 0 && scenariosDataStore[0].measures.length > 0) {
                   const firstScenario = scenariosDataStore[0];
                   maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
                   processedMaccData = firstScenario.measures.map(measure => {
-                      const lifecycle = measure.lifecycle; const reductionPercent = measure.reduction / 100;
-                      const validBaseline = totalBaselineEmissions > 1e-9 ? totalBaselineEmissions : 1e-9;
+                      const lifecycle = measure.lifecycle;
+                      const reductionPercent = measure.reduction / 100;
+                      let relevantBaseline = 0;
+                      // ** Use correct baseline scope for abatement calculation **
+                      if (measure.scope === 'Scope 1') {
+                          relevantBaseline = baselineData.scope1 || 0;
+                      } else if (measure.scope === 'Scope 2') {
+                          relevantBaseline = baselineData.scope2 || 0;
+                      }
+                      const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9; // Avoid 0 baseline
                       const annualAbatement = validBaseline * reductionPercent;
                       const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
                       const annualizedCost = annualizedCapex + measure.opex;
@@ -452,74 +470,27 @@
         }
 
         // --- Chart Update Functions ---
-        // *** Updated Trajectory Chart Update Function (Using standard legend filter) ***
-        function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) {
+        function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) { /* ... (unchanged logic, standard legend filter) ... */
             if (!trajectoryCtx) { console.error("Trajectory Chart context not found!"); return; }
             if (trajectoryChartInstance) { trajectoryChartInstance.destroy(); }
-
-            // Create a deep copy of the base config to modify
             const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
-
             newChartConfig.data.labels = years;
-            newChartConfig.data.datasets[0].data = bauData; // BAU (index 0)
-            newChartConfig.data.datasets[1].data = targetData; // Target Path (index 1)
-
-            // Update horizontal target lines based on calculated levels
+            newChartConfig.data.datasets[0].data = bauData;
+            newChartConfig.data.datasets[1].data = targetData;
             const showSBTiLines = nearTermTargetLevel !== null && longTermTargetLevel !== null;
             console.log(`[updateTrajectoryChart] showSBTiLines = ${showSBTiLines}`);
-
-            // Update dataset 2 (Near-Term Level)
             newChartConfig.data.datasets[2].data = showSBTiLines ? years.map(() => nearTermTargetLevel) : [];
-            newChartConfig.data.datasets[2].hidden = !showSBTiLines; // Set hidden status
-
-            // Update dataset 3 (Long-Term Level)
+            newChartConfig.data.datasets[2].hidden = !showSBTiLines;
             newChartConfig.data.datasets[3].data = showSBTiLines ? years.map(() => longTermTargetLevel) : [];
-            newChartConfig.data.datasets[3].hidden = !showSBTiLines; // Set hidden status
-
-            // Remove any existing scenario datasets (beyond the first 4 base ones)
+            newChartConfig.data.datasets[3].hidden = !showSBTiLines;
             newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
-
-            // Add scenario datasets (start from index 4 now)
-            scenarioTrajectories.forEach((scenario, index) => {
-                newChartConfig.data.datasets.push({
-                    label: scenario.name,
-                    data: scenario.data,
-                    borderColor: scenario.color,
-                    backgroundColor: `${scenario.color}33`,
-                    tension: 0.1,
-                    borderWidth: 2.5,
-                    pointBackgroundColor: scenario.color,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
-                    fill: false,
-                    order: 3 // Keep order consistent relative to base lines
-                });
-            });
-
-             // ** Use the standard legend filter based on the 'hidden' property **
-             newChartConfig.options.plugins.legend.labels.filter = function(legendItem, chartData) {
-                   // Access the dataset corresponding to the legend item
-                   const dataset = chartData.datasets[legendItem.datasetIndex];
-                   // Return true (show item) if the dataset is NOT hidden
-                   return dataset && !dataset.hidden;
-             };
-             // Tooltip filter remains the same (exclude datasets 2 and 3 by index)
-              newChartConfig.options.plugins.tooltip.filter = function(tooltipItem) {
-                   return tooltipItem.datasetIndex !== 2 && tooltipItem.datasetIndex !== 3;
-             };
-
-
+            scenarioTrajectories.forEach((scenario, index) => { newChartConfig.data.datasets.push({ label: scenario.name, data: scenario.data, borderColor: scenario.color, backgroundColor: `${scenario.color}33`, tension: 0.1, borderWidth: 2.5, pointBackgroundColor: scenario.color, pointRadius: 3, pointHoverRadius: 6, fill: false, order: 3 }); });
+            newChartConfig.options.plugins.legend.labels.filter = function(legendItem, chartData) { const dataset = chartData.datasets[legendItem.datasetIndex]; return dataset && !dataset.hidden; };
+            newChartConfig.options.plugins.tooltip.filter = function(tooltipItem) { return tooltipItem.datasetIndex !== 2 && tooltipItem.datasetIndex !== 3; };
             console.log("[updateTrajectoryChart] Final datasets count:", newChartConfig.data.datasets.length);
             console.log("[updateTrajectoryChart] Final datasets config (Hidden Status):", JSON.stringify(newChartConfig.data.datasets.map(ds => ({label: ds.label, hidden: ds.hidden}))));
-
-            try {
-                trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
-                 console.log("[updateTrajectoryChart] Trajectory chart updated.");
-            } catch(error) {
-                 console.error("[updateTrajectoryChart] Error creating trajectory chart:", error);
-            }
+            try { trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig); console.log("[updateTrajectoryChart] Trajectory chart updated."); } catch(error) { console.error("[updateTrajectoryChart] Error creating trajectory chart:", error); }
         }
-
 
         function updateMaccChart(processedMaccData) { /* ... (unchanged) ... */
             if (!maccCtx) { console.error("MACC Chart context (maccCtx) not found!"); return; }
@@ -562,7 +533,7 @@
              return scenarioBlock;
         }
         function updateScenarioName(scenarioId, newName) { /* ... (unchanged, but adjusted index) ... */
-            const scenario = scenariosDataStore.find(s => s.id === scenarioId); if (scenario) { scenario.name = newName.trim() || "Unnamed Scenario"; if (scenariosDataStore.length > 0 && scenariosDataStore[0].id === scenarioId) { maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenario.name}"`; } if (trajectoryChartInstance) { const datasetIndex = scenariosDataStore.findIndex(s => s.id === scenarioId); if (datasetIndex !== -1 && trajectoryChartInstance.data.datasets[datasetIndex + 4]) { trajectoryChartInstance.data.datasets[datasetIndex + 4].label = scenario.name; trajectoryChartInstance.update('none'); } } } // Index +4 assumes 4 base datasets
+            const scenario = scenariosDataStore.find(s => s.id === scenarioId); if (scenario) { scenario.name = newName.trim() || "Unnamed Scenario"; if (scenariosDataStore.length > 0 && scenariosDataStore[0].id === scenarioId) { maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenario.name}"`; } if (trajectoryChartInstance) { const datasetIndex = scenariosDataStore.findIndex(s => s.id === scenarioId); const chartDatasetIndex = datasetIndex + 4; /* Adjust for base + SBTi lines */ if (datasetIndex !== -1 && trajectoryChartInstance.data.datasets[chartDatasetIndex]) { trajectoryChartInstance.data.datasets[chartDatasetIndex].label = scenario.name; trajectoryChartInstance.update('none'); } } }
         } window.updateScenarioName = updateScenarioName;
         function deleteScenario(scenarioId) { /* ... (unchanged) ... */
             scenariosDataStore = scenariosDataStore.filter(s => s.id !== scenarioId); const scenarioBlock = document.getElementById(scenarioId); if (scenarioBlock) scenarioBlock.remove(); if(isToolInitialized) calculateAllData();
@@ -616,6 +587,10 @@
                 if (scenariosDataStore.length === 0) { addScenario(); }
                 else { scenariosListContainer.innerHTML = ''; scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); }); calculateAllData(); }
                 addScenarioBtn.addEventListener('click', addScenario);
+            } else {
+                // If tool was already initialized, just ensure data is calculated
+                // (e.g., if user went back home and then clicked try again)
+                 calculateAllData();
             }
         });
 
@@ -633,7 +608,7 @@
         // --- Initial Setup ---
         document.addEventListener('DOMContentLoaded', () => {
             console.log("Page loaded. Tool inactive.");
-            showPage('home-section');
+            showPage('home-section'); // Start on home page
             baselineDisplay.textContent = `${(baselineData.scope1 + baselineData.scope2).toFixed(0)} tCO2eq`;
             updateGrowthRateDisplay();
             targetReductionInput.disabled = sbtiCheckbox.checked;
