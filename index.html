@@ -14,6 +14,19 @@
         html, body { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: #f0f9ff; }
         body { display: flex; flex-direction: column; }
 
+        /* --- Modal Styles --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+        .modal-content { background-color: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        .modal-close-btn:hover { color: #1f2937; }
+        .modal-header { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: #115e59; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.75rem; }
+        .modal-footer { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 0.5rem; }
+        .modal-measures-container::-webkit-scrollbar { width: 6px; }
+        .modal-measures-container::-webkit-scrollbar-track { background: #e0f2fe; border-radius: 10px; }
+        .modal-measures-container::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 10px; }
+
         /* --- Home Section Styles (Unchanged) --- */
         #home-section { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 90vh; text-align: center; padding: 2rem; background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); transition: opacity 0.5s ease-in-out; }
         .home-title { font-size: 3rem; font-weight: 800; color: #0c4a6e; margin-bottom: 1.5rem; line-height: 1.2; }
@@ -33,17 +46,23 @@
 
         /* --- Utility & Existing Tool Styles --- */
         .fade-out { opacity: 0; } .hidden { display: none; }
-        .measures-container::-webkit-scrollbar { width: 6px; } .measures-container::-webkit-scrollbar-track { background: #e0f2fe; border-radius: 10px; } .measures-container::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 10px; } .measures-container::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
         .chart-container, .macc-chart-container { position: relative; height: 70vh; width: 100%; background-color: #ffffff; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         .scenario-block { border: 1px solid #99f6e4; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; background-color: #ffffff; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
         .measure-block { border: 1px solid #e0f2fe; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; background-color: #f0f9ff; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: box-shadow 0.2s ease-in-out; } .measure-block:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         .remove-btn { background-color: #fecaca; color: #991b1b; padding: 0.3rem 0.6rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; transition: all 0.2s; border: 1px solid #fca5a5; cursor: pointer; } .remove-btn:hover { background-color: #ef4444; color: white; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
         .add-btn { background-color: #6ee7b7; color: #047857; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600; transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; border: 1px solid #34d399; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; } .add-btn:hover { background-color: #10b981; color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transform: translateY(-1px); } .add-btn svg { margin-right: 0.5rem; }
         input[type="number"], input[type="text"], select { border: 1px solid #cbd5e1; border-radius: 0.375rem; padding: 0.6rem; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); } input[type="number"]:focus, input[type="text"]:focus, select:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4); }
+        input:disabled { background-color: #f3f4f6; cursor: not-allowed; }
         .name-input { font-weight: 600; color: #0f766e; padding: 0.4rem 0.6rem; border: 1px solid transparent; } .name-input:focus { border: 1px solid #38bdf8; background-color: #ffffff; }
         .section-header { font-size: 1.125rem; font-weight: 600; color: #0f766e; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #99f6e4; }
         .subsection-header { font-size: 1rem; font-weight: 600; color: #115e59; margin-bottom: 0.75rem; }
         label { font-size: 0.875rem; font-weight: 500; color: #475569; margin-bottom: 0.25rem; display: block; }
+        /* Smaller inputs for measure details */
+        .measure-block input, .measure-block select { padding: 0.4rem; font-size: 0.875rem; }
+        .measure-block label { font-size: 0.75rem; margin-bottom: 0.1rem; }
+        /* Edit button style */
+        .edit-btn { background: none; border: none; padding: 0.25rem; color: #3b82f6; cursor: pointer; }
+        .edit-btn:hover { color: #1d4ed8; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -67,18 +86,48 @@
                 <div class="lg:col-span-1 bg-white p-0 rounded-lg flex flex-col h-full">
                     <h2 class="section-header">Inputs</h2>
                     <div class="mb-6 border-b border-slate-200 pb-5">
-                        <h3 class="subsection-header">Baseline & Projections</h3>
+                        <h3 class="subsection-header flex justify-between items-center">
+                            <span>Baseline</span>
+                            <button class="edit-btn text-sm" onclick="openBaselineModal()">Edit Baseline</button>
+                        </h3>
                         <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div><label for="baseline-emissions">Baseline Emissions (tCO2eq)</label><input type="number" id="baseline-emissions" value="10000" class="w-full shadow-sm"></div>
-                            <div><label for="baseline-year">Baseline Year</label><input type="number" id="baseline-year" value="2024" min="1990" max="2050" class="w-full shadow-sm"></div>
+                            <div>
+                                <label>Total Baseline Emissions</label>
+                                <div id="baseline-display" class="mt-1 p-2 border border-gray-200 rounded bg-gray-50 text-center font-medium">10000 tCO2eq</div>
+                            </div>
+                            <div>
+                                <label for="baseline-year">Baseline Year</label>
+                                <input type="number" id="baseline-year" value="2024" min="2015" max="2050" class="w-full shadow-sm">
+                            </div>
                         </div>
-                        <div class="mb-4"><label for="growth-rate">Avg. Annual Growth (%)</label><input type="number" id="growth-rate" value="2" step="0.1" class="w-full shadow-sm"><p class="text-xs text-slate-500 mt-1">Note: Calculates linear growth based on baseline emissions.</p></div>
-                        <div><label for="target-reduction">2050 Target Reduction (%)</label><input type="number" id="target-reduction" value="50" min="0" max="100" class="w-full shadow-sm"></div>
+                    </div>
+                    <div class="mb-6 border-b border-slate-200 pb-5">
+                         <h3 class="subsection-header flex justify-between items-center">
+                            <span>Projections</span>
+                            <button class="edit-btn text-sm" onclick="openGrowthRateModal()">Edit Growth Rates</button>
+                        </h3>
+                         <p class="text-xs text-slate-500 mt-1">Linear growth rates (% of baseline) applied per period.</p>
+                         <div class="mt-2 p-2 border border-gray-200 rounded bg-gray-50 text-sm">
+                             <span id="growth-display-p1">P1 (2024-2030): 2.0%</span><br>
+                             <span id="growth-display-p2">P2 (2031-2040): 1.5%</span><br>
+                             <span id="growth-display-p3">P3 (2041-2050): 1.0%</span>
+                         </div>
+                    </div>
+                     <div class="mb-6 border-b border-slate-200 pb-5">
+                        <h3 class="subsection-header">Target</h3>
+                         <div class="flex items-center mb-2">
+                             <input id="sbti-checkbox" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                             <label for="sbti-checkbox" class="ml-2 block text-sm text-gray-900">Align target with SBTi (1.5°C Pathway)?</label>
+                         </div>
+                         <p id="sbti-note" class="text-xs text-slate-500 mt-1 mb-3 hidden">Applies -42% by near-term target year (baseline+10yrs) and -90% by 2050 vs baseline year emissions.</p>
+                         <div>
+                            <label for="target-reduction">Manual 2050 Target Reduction (%)</label>
+                            <input type="number" id="target-reduction" value="50" min="0" max="100" class="w-full shadow-sm">
+                        </div>
                     </div>
                     <div class="flex-grow flex flex-col">
                         <div class="flex justify-between items-center mb-4"><h2 class="section-header mb-0 pb-0 border-b-0">Scenarios</h2><button id="add-scenario-btn" class="add-btn"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>Add Scenario</button></div>
-                        <div id="scenarios-list" class="flex-grow overflow-y-auto -mr-3 pr-3 space-y-4" style="max-height: calc(70vh - 350px);"></div>
-                    </div>
+                        <div id="scenarios-list" class="flex-grow overflow-y-auto -mr-3 pr-3 space-y-4" style="max-height: calc(70vh - 450px);"></div> </div>
                 </div>
                 <div class="lg:col-span-2 p-0 rounded-lg">
                     <h2 class="section-header text-center mb-4">Emissions Trajectory (tCO2eq)</h2>
@@ -102,17 +151,89 @@
 
     </section>
 
+    <div id="baseline-modal" class="modal-overlay">
+        <div class="modal-content relative">
+             <button class="modal-close-btn" onclick="closeBaselineModal()">&times;</button>
+             <h3 class="modal-header">Edit Baseline Emissions</h3>
+             <div class="space-y-4">
+                 <div><label for="modal-baseline-scope1" class="block text-sm font-medium text-gray-700 mb-1">Scope 1 Emissions (tCO2eq)</label><input type="number" id="modal-baseline-scope1" value="6000" min="0" class="w-full shadow-sm"></div>
+                 <div><label for="modal-baseline-scope2" class="block text-sm font-medium text-gray-700 mb-1">Scope 2 Emissions (tCO2eq)</label><input type="number" id="modal-baseline-scope2" value="4000" min="0" class="w-full shadow-sm"></div>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="closeBaselineModal()">Cancel</button>
+                 <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveBaselineModal()">Save Baseline</button>
+             </div>
+        </div>
+    </div>
+
+     <div id="growth-rate-modal" class="modal-overlay">
+        <div class="modal-content relative">
+             <button class="modal-close-btn" onclick="closeGrowthRateModal()">&times;</button>
+             <h3 class="modal-header">Edit Growth Rates (% of Baseline / Year)</h3>
+             <div class="space-y-4">
+                 <div>
+                     <label id="modal-growth-p1-label" for="modal-growth-p1" class="block text-sm font-medium text-gray-700 mb-1">Period 1 (2024 - 2030)</label>
+                     <input type="number" id="modal-growth-p1" value="2.0" step="0.1" class="w-full shadow-sm">
+                 </div>
+                 <div>
+                     <label for="modal-growth-p2" class="block text-sm font-medium text-gray-700 mb-1">Period 2 (2031 - 2040)</label>
+                     <input type="number" id="modal-growth-p2" value="1.5" step="0.1" class="w-full shadow-sm">
+                 </div>
+                  <div>
+                     <label for="modal-growth-p3" class="block text-sm font-medium text-gray-700 mb-1">Period 3 (2041 - 2050)</label>
+                     <input type="number" id="modal-growth-p3" value="1.0" step="0.1" class="w-full shadow-sm">
+                 </div>
+             </div>
+             <div class="modal-footer">
+                 <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="closeGrowthRateModal()">Cancel</button>
+                 <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveGrowthRateModal()">Save Rates</button>
+             </div>
+        </div>
+    </div>
+
+    <div id="measures-modal" class="modal-overlay">
+        <div class="modal-content relative">
+             <button class="modal-close-btn" onclick="closeMeasuresModal()">&times;</button>
+             <h3 id="measures-modal-title" class="modal-header">Edit Measures for Scenario</h3>
+             <div id="modal-measures-list" class="modal-measures-container max-h-96 overflow-y-auto pr-2 space-y-4 mb-4"></div>
+             <button id="modal-add-measure-btn" class="add-btn w-full justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                  Add New Measure
+             </button>
+             <div class="modal-footer">
+                  <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveAndCloseMeasuresModal()">Save and Close</button>
+             </div>
+        </div>
+    </div>
+
+
     <script>
         // --- DOM Elements ---
         const homeSection = document.getElementById('home-section');
         const toolSection = document.getElementById('tool-section');
         const tryToolBtn = document.getElementById('try-tool-btn');
-        const baselineEmissionsInput = document.getElementById('baseline-emissions');
+        const baselineDisplay = document.getElementById('baseline-display');
         const baselineYearInput = document.getElementById('baseline-year');
-        const growthRateInput = document.getElementById('growth-rate');
+        const baselineModal = document.getElementById('baseline-modal');
+        const modalBaselineScope1 = document.getElementById('modal-baseline-scope1');
+        const modalBaselineScope2 = document.getElementById('modal-baseline-scope2');
+        const growthRateModal = document.getElementById('growth-rate-modal');
+        const modalGrowthP1Label = document.getElementById('modal-growth-p1-label');
+        const modalGrowthP1 = document.getElementById('modal-growth-p1');
+        const modalGrowthP2 = document.getElementById('modal-growth-p2');
+        const modalGrowthP3 = document.getElementById('modal-growth-p3');
+        const growthDisplayP1 = document.getElementById('growth-display-p1');
+        const growthDisplayP2 = document.getElementById('growth-display-p2');
+        const growthDisplayP3 = document.getElementById('growth-display-p3');
         const targetReductionInput = document.getElementById('target-reduction');
+        const sbtiCheckbox = document.getElementById('sbti-checkbox');
+        const sbtiNote = document.getElementById('sbti-note');
         const addScenarioBtn = document.getElementById('add-scenario-btn');
         const scenariosListContainer = document.getElementById('scenarios-list');
+        const measuresModal = document.getElementById('measures-modal');
+        const measuresModalTitle = document.getElementById('measures-modal-title');
+        const modalMeasuresList = document.getElementById('modal-measures-list');
+        const modalAddMeasureBtn = document.getElementById('modal-add-measure-btn');
         const trajectoryCtx = document.getElementById('trajectoryChart').getContext('2d');
         const maccCtx = document.getElementById('maccChart').getContext('2d');
         const maccScenarioInfo = document.getElementById('macc-scenario-info');
@@ -126,234 +247,444 @@
         let isToolInitialized = false;
         const scenarioColors = ['#14b8a6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#d946ef', '#84cc16'];
         let scenarioColorIndex = 0; let activeTab = 'dashboard';
+        let scenariosDataStore = [];
+        let currentEditingScenarioId = null;
+        let baselineData = { scope1: 6000, scope2: 4000 };
+        let growthRates = { p1: 2.0, p2: 1.5, p3: 1.0 };
 
         // --- Chart Configurations ---
-        const baseTrajectoryChartConfig = { /* ... (unchanged) ... */
-             type: 'line', data: { labels: [], datasets: [ { label: 'Business As Usual (BAU)', data: [], borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', tension: 0.1, borderWidth: 2.5, pointBackgroundColor: '#f43f5e', pointRadius: 3, pointHoverRadius: 6, fill: false }, { label: 'Target Path', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.1, borderDash: [6, 6], borderWidth: 2.5, pointBackgroundColor: '#3b82f6', pointRadius: 3, pointHoverRadius: 6, fill: false } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'Year', font: { size: 14, weight: '500' }, color: '#475569' }, grid: { display: false }, ticks: { color: '#64748b' } }, y: { title: { display: true, text: 'Emissions (tCO2eq)', font: { size: 14, weight: '500' }, color: '#475569' }, beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } } }, plugins: { tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(0, 0, 0, 0.7)', titleFont: { size: 14, weight: '600' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 4, boxPadding: 5 }, legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 13 }, color: '#334155' } } }, interaction: { mode: 'nearest', axis: 'x', intersect: false } }
-        };
-        // *** MACC Chart Config (Simplified Categorical Axis) ***
-        const baseMaccChartConfig = {
-            type: 'bar',
-            data: {
-                labels: [], // Measure names will go here
-                datasets: [{
-                    label: 'MAC ($/tCO2eq)', // This label appears in tooltips if legend is hidden
-                    data: [], // MAC values (y-values)
-                    backgroundColor: '#38bdf8',
-                    borderColor: '#0ea5e9',
-                    borderWidth: 1,
-                    // Custom data storage for tooltips
-                    processedMeasures: []
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                // indexAxis: 'x', // Default, vertical bars
-                scales: {
-                     x: { // Represents Measures (Categories)
-                         type: 'category', // ** Use category axis **
-                         title: { display: true, text: 'Abatement Measures (Sorted by Cost)', font: {size: 14, weight: '500'}, color: '#475569' },
-                         ticks: {
-                             // Optional: Rotate labels if they overlap
-                             // maxRotation: 90,
-                             // minRotation: 45
+        // *** Trajectory Chart Config with Target Lines ***
+        const baseTrajectoryChartConfig = {
+             type: 'line',
+             data: {
+                 labels: [],
+                 datasets: [
+                     // Index 0: BAU
+                     { label: 'Business As Usual (BAU)', data: [], borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', tension: 0.1, borderWidth: 2.5, pointBackgroundColor: '#f43f5e', pointRadius: 3, pointHoverRadius: 6, fill: false, order: 1 },
+                     // Index 1: Target Path
+                     { label: 'Target Path', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.1, borderDash: [6, 6], borderWidth: 2.5, pointBackgroundColor: '#3b82f6', pointRadius: 3, pointHoverRadius: 6, fill: false, order: 2 },
+                     // Index 2: Near-Term Target Level Line (SBTi) - Config placeholder
+                     { label: 'Near-Term Target Level (-42%)', data: [], borderColor: 'rgba(255, 215, 0, 0.6)', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false, hidden: true, order: 0 },
+                     // Index 3: Long-Term Target Level Line (SBTi) - Config placeholder
+                     { label: 'Long-Term Target Level (-90%)', data: [], borderColor: 'rgba(220, 20, 60, 0.6)', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false, hidden: true, order: 0 }
+                     // Scenario datasets will be added starting at index 4
+                 ]
+             },
+             options: {
+                 responsive: true, maintainAspectRatio: false,
+                 scales: {
+                     x: { title: { display: true, text: 'Year', font: { size: 14, weight: '500' }, color: '#475569' }, grid: { display: false }, ticks: { color: '#64748b' } },
+                     y: { title: { display: true, text: 'Emissions (tCO2eq)', font: { size: 14, weight: '500' }, color: '#475569' }, beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } }
+                 },
+                 plugins: {
+                     tooltip: {
+                         mode: 'index', intersect: false, backgroundColor: 'rgba(0, 0, 0, 0.7)', titleFont: { size: 14, weight: '600' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 4, boxPadding: 5,
+                         // Filter out tooltips for the horizontal target lines (datasets 2 and 3)
+                         filter: function(tooltipItem) {
+                             return tooltipItem.datasetIndex !== 2 && tooltipItem.datasetIndex !== 3;
                          }
                      },
-                     y: { // Represents MAC
-                         title: { display: true, text: 'Marginal Abatement Cost ($/tCO2eq)', font: {size: 14, weight: '500'}, color: '#475569' },
-                         // beginAtZero: true // Often good, but allow negative costs
-                     }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            // Title is the measure name (category label)
-                            title: function(tooltipItems) { return tooltipItems[0].label || ''; },
-                            label: function(context) {
-                                // Display the MAC value
-                                let label = context.dataset.label || '';
-                                if (label) { label += ': '; }
-                                if (context.parsed.y !== null) {
-                                    label += '$' + context.parsed.y.toFixed(2) + ' / tCO2eq';
-                                }
-                                return label;
-                            },
-                            footer: function(tooltipItems) {
-                                // Access the full measure data using the dataIndex
-                                const measures = tooltipItems[0].chart.data.datasets[0].processedMeasures;
-                                const index = tooltipItems[0].dataIndex;
-                                const measure = measures && measures[index] ? measures[index] : null;
-                                if (measure) {
-                                    return [
-                                        `Annual Abatement: ${measure.annualAbatement.toFixed(0)} tCO2eq/yr`,
-                                        `Annualized Cost: $${measure.annualizedCost.toFixed(0)} /yr`
-                                        // Cumulative is less meaningful here, removed for clarity
-                                    ];
-                                }
-                                return '';
+                     legend: {
+                         position: 'bottom',
+                         labels: { usePointStyle: true, padding: 20, font: { size: 13 }, color: '#334155',
+                            // Filter out legend items based on the dataset's hidden status
+                            filter: function(legendItem, chartData) {
+                                return !legendItem.hidden; // Standard way to filter based on hidden property
                             }
-                        }
-                    },
-                    legend: { display: false } // Keep legend hidden
-                }
-            }
+                         },
+                         onHover: (event, legendItem, legend) => { const canvas = legend.chart.canvas; if (canvas && legendItem && legendItem.text) { canvas.style.cursor = 'pointer'; } },
+                         onLeave: (event, legendItem, legend) => { const canvas = legend.chart.canvas; if (canvas) { canvas.style.cursor = 'default'; } }
+                     }
+                 },
+                 interaction: { mode: 'nearest', axis: 'x', intersect: false }
+             }
+        };
+        const baseMaccChartConfig = { /* ... (unchanged, uses simplified MACC) ... */
+            type: 'bar', data: { labels: [], datasets: [{ label: 'MAC ($/tCO2eq)', data: [], backgroundColor: '#38bdf8', borderColor: '#0ea5e9', borderWidth: 1, processedMeasures: [] }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'category', title: { display: true, text: 'Abatement Measures (Sorted by Cost)', font: {size: 14, weight: '500'}, color: '#475569' } }, y: { title: { display: true, text: 'Marginal Abatement Cost ($/tCO2eq)', font: {size: 14, weight: '500'}, color: '#475569' } } }, plugins: { tooltip: { callbacks: { title: function(tooltipItems) { return tooltipItems[0].label || ''; }, label: function(context) { const measures = context.chart.data.datasets[0].processedMeasures; const index = context.dataIndex; const measure = measures && measures[index] ? measures[index] : null; return measure ? `MAC: $${measure.mac.toFixed(2)} / tCO2eq` : ''; }, footer: function(tooltipItems) { const measures = tooltipItems[0].chart.data.datasets[0].processedMeasures; const index = tooltipItems[0].dataIndex; const measure = measures && measures[index] ? measures[index] : null; if (measure) { return [ `Annual Abatement: ${measure.annualAbatement.toFixed(0)} tCO2eq/yr`, `Annualized Cost: $${measure.annualizedCost.toFixed(0)} /yr` ]; } return ''; } } }, legend: { display: false } } }
         };
 
+        // --- Modal Management ---
+        function openBaselineModal() { /* ... (unchanged) ... */
+            modalBaselineScope1.value = baselineData.scope1;
+            modalBaselineScope2.value = baselineData.scope2;
+            baselineModal.classList.add('active');
+        }
+        function closeBaselineModal() { /* ... (unchanged) ... */
+            baselineModal.classList.remove('active');
+        }
+        function saveBaselineModal() { /* ... (unchanged) ... */
+            baselineData.scope1 = parseFloat(modalBaselineScope1.value) || 0;
+            baselineData.scope2 = parseFloat(modalBaselineScope2.value) || 0;
+            const totalBaseline = baselineData.scope1 + baselineData.scope2;
+            baselineDisplay.textContent = `${totalBaseline.toFixed(0)} tCO2eq`;
+            closeBaselineModal();
+            if (isToolInitialized) debouncedCalculateAllData();
+        }
+        function openGrowthRateModal() { /* ... (unchanged) ... */
+            const baselineYear = parseInt(baselineYearInput.value) || new Date().getFullYear();
+            modalGrowthP1Label.textContent = `Period 1 (${baselineYear} - 2030)`;
+            modalGrowthP1.value = growthRates.p1.toFixed(1);
+            modalGrowthP2.value = growthRates.p2.toFixed(1);
+            modalGrowthP3.value = growthRates.p3.toFixed(1);
+            growthRateModal.classList.add('active');
+        }
+        function closeGrowthRateModal() { /* ... (unchanged) ... */
+            growthRateModal.classList.remove('active');
+        }
+        function saveGrowthRateModal() { /* ... (unchanged) ... */
+            growthRates.p1 = parseFloat(modalGrowthP1.value) || 0;
+            growthRates.p2 = parseFloat(modalGrowthP2.value) || 0;
+            growthRates.p3 = parseFloat(modalGrowthP3.value) || 0;
+            updateGrowthRateDisplay();
+            closeGrowthRateModal();
+            if (isToolInitialized) debouncedCalculateAllData();
+        }
+        function updateGrowthRateDisplay() { /* ... (unchanged) ... */
+            const baselineYear = parseInt(baselineYearInput.value) || new Date().getFullYear();
+            growthDisplayP1.textContent = `P1 (${baselineYear}-2030): ${growthRates.p1.toFixed(1)}%`;
+            growthDisplayP2.textContent = `P2 (2031-2040): ${growthRates.p2.toFixed(1)}%`;
+            growthDisplayP3.textContent = `P3 (2041-2050): ${growthRates.p3.toFixed(1)}%`;
+        }
+
+        function openMeasuresModal(scenarioId) { /* ... (unchanged) ... */
+            currentEditingScenarioId = scenarioId;
+            const scenario = scenariosDataStore.find(s => s.id === scenarioId);
+            if (!scenario) { console.error("Scenario not found for editing:", scenarioId); return; }
+            measuresModalTitle.textContent = `Edit Measures for ${scenario.name}`;
+            modalMeasuresList.innerHTML = '';
+            const measuresToEdit = JSON.parse(JSON.stringify(scenario.measures));
+            measuresToEdit.forEach(measure => { modalMeasuresList.appendChild(createMeasureBlockElement(measure)); });
+            measuresModal.classList.add('active');
+        }
+        function closeMeasuresModal() { /* ... (unchanged) ... */
+            currentEditingScenarioId = null;
+            measuresModal.classList.remove('active');
+        }
+        function saveAndCloseMeasuresModal() { /* ... (unchanged) ... */
+            if (!currentEditingScenarioId) { console.log("Save cancelled: No scenario ID being edited."); closeMeasuresModal(); return; }
+            const scenarioIndex = scenariosDataStore.findIndex(s => s.id === currentEditingScenarioId);
+            if (scenarioIndex === -1) { console.error("Scenario to save not found in store:", currentEditingScenarioId); closeMeasuresModal(); return; }
+            console.log(`Saving measures for scenario ID: ${currentEditingScenarioId}, Index: ${scenarioIndex}`);
+            const updatedMeasures = [];
+            const measureBlocksInModal = modalMeasuresList.querySelectorAll('.measure-block');
+            console.log(`Found ${measureBlocksInModal.length} measure blocks in modal.`);
+            measureBlocksInModal.forEach((block, index) => {
+                 try {
+                     const nameInput = block.querySelector('.measure-name-input');
+                     const name = nameInput ? nameInput.value.trim() || `Measure ${index + 1}` : `Measure ${index + 1}`;
+                     const reductionEl = block.querySelector('.measure-reduction');
+                     const reduction = reductionEl ? parseFloat(reductionEl.value) || 0 : 0;
+                     const permanentEl = block.querySelector('.measure-permanent');
+                     const isPermanent = permanentEl ? permanentEl.value === 'yes' : false;
+                     const lifecycleInput = block.querySelector('.measure-lifecycle');
+                     let lifecycle = 1;
+                     if (isPermanent) { lifecycle = 99; } else if (lifecycleInput) { lifecycle = parseInt(lifecycleInput.value) || 1; }
+                     lifecycle = Math.max(1, lifecycle);
+                     const startYearEl = block.querySelector('.measure-start-year');
+                     const startYear = startYearEl ? parseInt(startYearEl.value) || (parseInt(baselineYearInput.value) || 1990) : (parseInt(baselineYearInput.value) || 1990);
+                     const scopeEl = block.querySelector('.measure-scope');
+                     const scope = scopeEl ? scopeEl.value : 'Scope 1';
+                     const capexEl = block.querySelector('.measure-capex');
+                     const capex = capexEl ? parseFloat(capexEl.value) || 0 : 0;
+                     const opexEl = block.querySelector('.measure-opex');
+                     const opex = opexEl ? parseFloat(opexEl.value) || 0 : 0;
+                     const measureData = { id: block.id || `measure-${Date.now()}-${index}`, name, reduction, isPermanent, lifecycle, startYear, scope, capex, opex };
+                     console.log(`Read measure ${index + 1}:`, measureData);
+                     if (measureData.reduction > 0 && measureData.reduction <= 100 && measureData.lifecycle > 0 && measureData.startYear >= (parseInt(baselineYearInput.value) || 1990) && measureData.startYear <= 2050) {
+                         updatedMeasures.push(measureData);
+                     } else { console.warn("Skipping invalid measure data during modal save:", measureData); }
+                 } catch (error) { console.error(`Error reading data for measure block ${index}:`, error, block); }
+            });
+            scenariosDataStore[scenarioIndex].measures = updatedMeasures;
+            console.log("Updated scenariosDataStore:", JSON.stringify(scenariosDataStore));
+            const scenarioBlockOnPage = document.getElementById(currentEditingScenarioId);
+            if (scenarioBlockOnPage) { const countElement = scenarioBlockOnPage.querySelector('.text-xs'); if (countElement) { countElement.textContent = `${updatedMeasures.length} measure(s)`; } }
+            closeMeasuresModal();
+            if (isToolInitialized) { console.log("Triggering recalculation after saving measures..."); debouncedCalculateAllData(); }
+        }
 
         // --- Calculation & Data ---
         function calculateAllData() {
              if (!isToolInitialized) return;
              console.log("[calculateAllData] Starting calculation...");
-             const baselineEmissions = Math.max(0, parseFloat(baselineEmissionsInput.value) || 0);
+             const totalBaselineEmissions = baselineData.scope1 + baselineData.scope2;
              const baselineYear = parseInt(baselineYearInput.value) || new Date().getFullYear();
-             const growthRatePercent = parseFloat(growthRateInput.value) || 0;
-             const targetReduction = Math.max(0, Math.min(100, parseFloat(targetReductionInput.value))) / 100 || 0;
+             const isSBTiAligned = sbtiCheckbox.checked;
+             const manualTargetReduction = Math.max(0, Math.min(100, parseFloat(targetReductionInput.value))) / 100 || 0;
              const endYear = 2050;
+             const nearTermTargetYear = baselineYear + 10;
              const years = []; const bauEmissions = []; const targetEmissions = [];
+             let sbtiNearTermLevel = null;
+             let sbtiLongTermLevel = null;
 
-             if (baselineEmissions <= 0 || baselineYear > endYear || baselineYear < 1990) {
+             // ** Baseline Validation **
+             if (totalBaselineEmissions <= 0 || baselineYear > endYear || baselineYear < 2015) {
                   console.error("[calculateAllData] Invalid baseline inputs. Clearing charts.");
-                  updateTrajectoryChart([], [], []); updateMaccChart([]); return;
+                  updateTrajectoryChart(years, bauEmissions, targetEmissions, [], null, null);
+                  updateMaccChart([]);
+                  return;
              }
-             // Calculate BAU & Target (Unchanged)
-             const annualIncrease = baselineEmissions * (growthRatePercent / 100); let currentBauEmissions = baselineEmissions;
-             for (let year = baselineYear; year <= endYear; year++) { years.push(year); if (year === baselineYear) bauEmissions.push(currentBauEmissions); else { currentBauEmissions += annualIncrease; bauEmissions.push(Math.max(0, currentBauEmissions)); } }
-             const targetEmission2050 = baselineEmissions * (1 - targetReduction); const finalTarget = Math.max(0, targetEmission2050);
-             for (let i = 0; i < years.length; i++) { const year = years[i]; if (year === baselineYear) targetEmissions.push(baselineEmissions); else { const linearTarget = baselineEmissions + (finalTarget - baselineEmissions) * (year - baselineYear) / (endYear - baselineYear); targetEmissions.push(Math.max(0, linearTarget)); } }
+             // ** SBTi Baseline Year Check **
+             let useSBTiLogic = isSBTiAligned;
+             if (isSBTiAligned && nearTermTargetYear > 2050) {
+                 console.warn(`[calculateAllData] SBTi alignment selected, but Near-Term Target Year (${nearTermTargetYear}) is beyond 2050. Reverting to manual target.`);
+                 sbtiCheckbox.checked = false;
+                 targetReductionInput.disabled = false;
+                 sbtiNote.classList.add('hidden');
+                 useSBTiLogic = false;
+             }
 
-             // Calculate Scenarios (Unchanged)
-             const scenariosData = getAllScenariosData(); const scenarioTrajectories = [];
-             scenariosData.forEach(scenario => { const scenarioEmissions = []; const measures = scenario.measures; for (let i = 0; i < years.length; i++) { const currentYear = years[i]; const currentBau = bauEmissions[i]; let yearMultiplier = 1.0; measures.forEach(measure => { const startYear = measure.startYear; const endMeasureYear = startYear + measure.lifecycle - 1; if (currentYear >= startYear && currentYear <= endMeasureYear) { const validReduction = Math.max(0, Math.min(100, measure.reduction)); yearMultiplier *= (1 - validReduction / 100); } }); scenarioEmissions.push(Math.max(0, currentBau * yearMultiplier)); } scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions }); });
-             updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories);
+             // ** Calculate BAU **
+             let currentBauEmissions = totalBaselineEmissions;
+             for (let year = baselineYear; year <= endYear; year++) {
+                 years.push(year);
+                 if (year === baselineYear) {
+                     bauEmissions.push(currentBauEmissions);
+                 } else {
+                     let applicableGrowthRate = 0;
+                     if (year <= 2030) { applicableGrowthRate = growthRates.p1 / 100; }
+                     else if (year <= 2040) { applicableGrowthRate = growthRates.p2 / 100; }
+                     else { applicableGrowthRate = growthRates.p3 / 100; }
+                     const annualIncrease = totalBaselineEmissions * applicableGrowthRate;
+                     currentBauEmissions += annualIncrease;
+                     bauEmissions.push(Math.max(0, currentBauEmissions));
+                 }
+             }
 
-             // *** Calculate MACC Data (Using Annual Abatement for Simplified Bar Chart) ***
+             // ** Calculate Target Path **
+             if (useSBTiLogic) {
+                 sbtiNearTermLevel = totalBaselineEmissions * (1 - 0.42);
+                 sbtiLongTermLevel = totalBaselineEmissions * (1 - 0.90);
+                 console.log(`[calculateAllData] SBTi Targets: Near-Term Year=${nearTermTargetYear}, Level=${sbtiNearTermLevel}, 2050 Level=${sbtiLongTermLevel}`);
+
+                 for (let i = 0; i < years.length; i++) {
+                     const year = years[i];
+                     if (year === baselineYear) {
+                         targetEmissions.push(totalBaselineEmissions);
+                     } else if (year <= nearTermTargetYear) {
+                         const yearsToNearTerm = nearTermTargetYear - baselineYear;
+                         const progressRatio = yearsToNearTerm > 0 ? Math.max(0, Math.min(1, (year - baselineYear) / yearsToNearTerm)) : 1;
+                         const linearTarget = totalBaselineEmissions + (sbtiNearTermLevel - totalBaselineEmissions) * progressRatio;
+                         targetEmissions.push(Math.max(0, linearTarget));
+                     } else { // year > nearTermTargetYear
+                         // Find the target emission value at the nearTermTargetYear index
+                         const nearTermIndex = years.indexOf(nearTermTargetYear);
+                         const startLevel = (nearTermIndex !== -1 && targetEmissions[nearTermIndex] !== undefined) ? targetEmissions[nearTermIndex] : sbtiNearTermLevel; // Use calculated value if index exists
+
+                         const yearsTo2050 = endYear - nearTermTargetYear;
+                         const progressRatio = yearsTo2050 > 0 ? Math.max(0, Math.min(1, (year - nearTermTargetYear) / yearsTo2050)) : 1;
+                         const linearTarget = startLevel + (sbtiLongTermLevel - startLevel) * progressRatio;
+                         targetEmissions.push(Math.max(0, linearTarget));
+                     }
+                 }
+             } else { // Use manual target
+                 console.log(`[calculateAllData] Using Manual Target Reduction: ${manualTargetReduction * 100}%`);
+                 const targetEmission2050 = totalBaselineEmissions * (1 - manualTargetReduction);
+                 const finalTarget = Math.max(0, targetEmission2050);
+                 for (let i = 0; i < years.length; i++) {
+                     const year = years[i];
+                     if (year === baselineYear) {
+                         targetEmissions.push(totalBaselineEmissions);
+                     } else {
+                         const yearsTotal = endYear - baselineYear;
+                         const progressRatio = yearsTotal > 0 ? Math.max(0, Math.min(1,(year - baselineYear) / yearsTotal)) : 1;
+                         const linearTarget = totalBaselineEmissions + (finalTarget - totalBaselineEmissions) * progressRatio;
+                         targetEmissions.push(Math.max(0, linearTarget));
+                     }
+                 }
+             }
+
+             // Calculate Scenarios
+             const scenariosData = getAllScenariosData();
+             const scenarioTrajectories = [];
+             scenariosData.forEach(scenario => {
+                 const scenarioEmissions = []; const measures = scenario.measures;
+                 for (let i = 0; i < years.length; i++) {
+                     const currentYear = years[i]; const currentBau = bauEmissions[i]; let yearMultiplier = 1.0;
+                     measures.forEach(measure => {
+                         const endMeasureYear = measure.startYear + measure.lifecycle - 1;
+                         if (currentYear >= measure.startYear && currentYear <= endMeasureYear) {
+                             const validReduction = Math.max(0, Math.min(100, measure.reduction));
+                             yearMultiplier *= (1 - validReduction / 100);
+                         }
+                     });
+                     scenarioEmissions.push(Math.max(0, currentBau * yearMultiplier));
+                 }
+                 scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions });
+             });
+             updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories, useSBTiLogic ? sbtiNearTermLevel : null, useSBTiLogic ? sbtiLongTermLevel : null);
+
+             // Calculate MACC Data
              let processedMaccData = [];
-             if (scenariosData.length > 0 && scenariosData[0].measures.length > 0) {
-                  const firstScenario = scenariosData[0];
+             if (scenariosDataStore.length > 0 && scenariosDataStore[0].measures.length > 0) {
+                  const firstScenario = scenariosDataStore[0];
                   maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
-                  console.log(`[MACC Calc - Simple] Processing scenario: ${firstScenario.name}`);
-
                   processedMaccData = firstScenario.measures.map(measure => {
-                      const lifecycle = Math.max(1, measure.lifecycle);
-                      const reductionPercent = measure.reduction / 100;
-                      const validBaseline = baselineEmissions > 1e-9 ? baselineEmissions : 1e-9;
+                      const lifecycle = measure.lifecycle; const reductionPercent = measure.reduction / 100;
+                      const validBaseline = totalBaselineEmissions > 1e-9 ? totalBaselineEmissions : 1e-9;
                       const annualAbatement = validBaseline * reductionPercent;
                       const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
                       const annualizedCost = annualizedCapex + measure.opex;
                       const mac = (annualAbatement > 1e-9) ? annualizedCost / annualAbatement : Infinity;
-
-                      if (annualAbatement <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) {
-                          console.warn(`[MACC Calc - Simple] Skipping measure ${measure.name}.`);
-                          return null;
-                      }
-                      return { ...measure, annualAbatement, annualizedCost, mac };
+                      if (annualAbatement <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
+                      return { ...measure, annualAbatement, annualizedCost, mac, scope: measure.scope };
                   }).filter(m => m !== null);
-
-                  console.log(`[MACC Calc - Simple] Measures after initial calc & filter: ${processedMaccData.length}`);
-
-                  // Sort valid measures by MAC ascending
                   processedMaccData.sort((a, b) => a.mac - b.mac);
-
-                  console.log("[MACC Calc - Simple] Final processed & sorted MACC data:", JSON.stringify(processedMaccData));
              } else {
                   maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis.";
-                  console.log("[MACC Calc - Simple] No scenarios or no measures in first scenario found.");
              }
-             updateMaccChart(processedMaccData); // Pass the final processed data array
+             updateMaccChart(processedMaccData);
         }
 
-
         function getAllScenariosData() { /* ... (unchanged) ... */
-            const scenarios = []; const scenarioBlocks = scenariosListContainer.querySelectorAll('.scenario-block');
-            scenarioBlocks.forEach((scenarioBlock, index) => {
-                const scenarioId = scenarioBlock.id; const nameInput = scenarioBlock.querySelector('.scenario-name-input'); const scenarioName = nameInput ? nameInput.value.trim() || `Scenario ${index + 1}` : `Scenario ${index + 1}`;
-                const measuresContainer = scenarioBlock.querySelector('.measures-container'); const measureBlocks = measuresContainer.querySelectorAll('.measure-block'); const scenarioMeasures = []; const scenarioColor = scenarioBlock.dataset.color || scenarioColors[index % scenarioColors.length];
-                measureBlocks.forEach((measureBlock, mIndex) => {
-                    const nameInput = measureBlock.querySelector('.measure-name-input'); const measureName = nameInput ? nameInput.value.trim() || `Measure ${mIndex + 1}` : `Measure ${mIndex + 1}`; const reduction = parseFloat(measureBlock.querySelector('.measure-reduction').value) || 0; const lifecycle = parseInt(measureBlock.querySelector('.measure-lifecycle').value) || 1; /* Default lifecycle to 1 */ const startYear = parseInt(measureBlock.querySelector('.measure-start-year').value) || (parseInt(baselineYearInput.value) || 1990); const measure = { id: measureBlock.id, name: measureName, type: measureBlock.querySelector('.measure-type').value, reduction: reduction, lifecycle: lifecycle, startYear: startYear, capex: parseFloat(measureBlock.querySelector('.measure-capex').value) || 0, opex: parseFloat(measureBlock.querySelector('.measure-opex').value) || 0, };
-                    if (measure.reduction > 0 && measure.reduction <= 100 && measure.lifecycle > 0 && measure.startYear >= (parseInt(baselineYearInput.value) || 1990) && measure.startYear <= 2050) { scenarioMeasures.push(measure); } else { console.warn("[getAllScenariosData] Invalid measure data skipped:", measure); }
-                });
-                scenarios.push({ id: scenarioId, name: scenarioName, color: scenarioColor, measures: scenarioMeasures });
-            });
-            return scenarios;
+            console.log("[getAllScenariosData] Reading from scenariosDataStore:", JSON.stringify(scenariosDataStore));
+            return JSON.parse(JSON.stringify(scenariosDataStore)); // Return a deep copy
         }
 
         // --- Chart Update Functions ---
-        function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories) { /* ... (unchanged) ... */
+        // *** Updated Trajectory Chart Update Function ***
+        function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) {
+            if (!trajectoryCtx) { console.error("Trajectory Chart context not found!"); return; }
             if (trajectoryChartInstance) { trajectoryChartInstance.destroy(); }
+
+            // Create a deep copy of the base config to modify
             const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
+
             newChartConfig.data.labels = years;
-            newChartConfig.data.datasets[0].data = bauData;
-            newChartConfig.data.datasets[1].data = targetData;
-            scenarioTrajectories.forEach(scenario => { newChartConfig.data.datasets.push({ label: scenario.name, data: scenario.data, borderColor: scenario.color, backgroundColor: `${scenario.color}33`, tension: 0.1, borderWidth: 2.5, pointBackgroundColor: scenario.color, pointRadius: 3, pointHoverRadius: 6, fill: false }); });
-            trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+            newChartConfig.data.datasets[0].data = bauData; // BAU (index 0)
+            newChartConfig.data.datasets[1].data = targetData; // Target Path (index 1)
+
+            // Update horizontal target lines based on calculated levels
+            const showSBTiLines = nearTermTargetLevel !== null && longTermTargetLevel !== null;
+            console.log(`[updateTrajectoryChart] showSBTiLines = ${showSBTiLines}`);
+
+            // Update dataset 2 (Near-Term Level)
+            if (showSBTiLines) {
+                newChartConfig.data.datasets[2].data = years.map(() => nearTermTargetLevel);
+                newChartConfig.data.datasets[2].hidden = false;
+            } else {
+                newChartConfig.data.datasets[2].data = [];
+                newChartConfig.data.datasets[2].hidden = true;
+            }
+
+            // Update dataset 3 (Long-Term Level)
+             if (showSBTiLines) {
+                newChartConfig.data.datasets[3].data = years.map(() => longTermTargetLevel);
+                newChartConfig.data.datasets[3].hidden = false;
+            } else {
+                newChartConfig.data.datasets[3].data = [];
+                newChartConfig.data.datasets[3].hidden = true;
+            }
+
+            // Remove any existing scenario datasets (beyond the first 4 base ones)
+            newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
+
+            // Add scenario datasets (start from index 4 now)
+            scenarioTrajectories.forEach((scenario, index) => {
+                newChartConfig.data.datasets.push({
+                    label: scenario.name,
+                    data: scenario.data,
+                    borderColor: scenario.color,
+                    backgroundColor: `${scenario.color}33`,
+                    tension: 0.1,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: scenario.color,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    fill: false,
+                    order: 3 + index // Ensure scenarios draw on top
+                });
+            });
+
+             // Use the standard legend filter based on the 'hidden' property
+             newChartConfig.options.plugins.legend.labels.filter = function(legendItem, chartData) {
+                   return !legendItem.hidden;
+             };
+             // Tooltip filter remains the same (exclude datasets 2 and 3)
+              newChartConfig.options.plugins.tooltip.filter = function(tooltipItem) {
+                   return tooltipItem.datasetIndex !== 2 && tooltipItem.datasetIndex !== 3;
+             };
+
+
+            console.log("[updateTrajectoryChart] Final datasets count:", newChartConfig.data.datasets.length);
+            console.log("[updateTrajectoryChart] Final datasets config (Hidden Status):", JSON.stringify(newChartConfig.data.datasets.map(ds => ({label: ds.label, hidden: ds.hidden}))));
+
+            try {
+                trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+                 console.log("[updateTrajectoryChart] Trajectory chart updated.");
+            } catch(error) {
+                 console.error("[updateTrajectoryChart] Error creating trajectory chart:", error);
+            }
         }
 
-        // *** MACC Chart Update Function (Simplified Categorical Axis) ***
-        function updateMaccChart(processedMaccData) {
+
+        function updateMaccChart(processedMaccData) { /* ... (unchanged) ... */
             if (!maccCtx) { console.error("MACC Chart context (maccCtx) not found!"); return; }
             if (maccChartInstance) { maccChartInstance.destroy(); }
             console.log("[updateMaccChart - Simple] Updating MACC chart with processed data count:", processedMaccData.length);
-
             const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
-
-            // Prepare data for standard bar chart
             const measureLabels = processedMaccData.map(d => d.name);
             const macValues = processedMaccData.map(d => d.mac);
-
-            if (measureLabels.length === 0) {
-                console.log("[updateMaccChart - Simple] No valid data points to plot.");
-                 maccScenarioInfo.textContent = "No valid measures found for MACC analysis in the first scenario.";
-                 newChartConfig.data.labels = [];
-                 newChartConfig.data.datasets[0].data = [];
-                 newChartConfig.data.datasets[0].processedMeasures = [];
-            } else {
-                newChartConfig.data.labels = measureLabels; // Assign measure names as category labels
-                newChartConfig.data.datasets[0].data = macValues; // Assign MAC values as bar heights
-                // Store the full processed data array for tooltip reference
-                newChartConfig.data.datasets[0].processedMeasures = processedMaccData;
-                 const scenarioName = scenariosListContainer.querySelector('.scenario-block .scenario-name-input')?.value || "Scenario 1";
-                 maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenarioName}"`;
-            }
-
-            // Assign colors
-            const barColors = processedMaccData.map(() => '#38bdf8'); // Sky blue
-            newChartConfig.data.datasets[0].backgroundColor = barColors;
-            newChartConfig.data.datasets[0].borderColor = barColors.map(c => '#0ea5e9');
-
+            if (measureLabels.length === 0) { console.log("[updateMaccChart - Simple] No valid data points to plot."); maccScenarioInfo.textContent = "No valid measures found for MACC analysis in the first scenario."; newChartConfig.data.labels = []; newChartConfig.data.datasets[0].data = []; newChartConfig.data.datasets[0].processedMeasures = []; } else { newChartConfig.data.labels = measureLabels; newChartConfig.data.datasets[0].data = macValues; newChartConfig.data.datasets[0].processedMeasures = processedMaccData; const scenarioName = scenariosDataStore.length > 0 ? scenariosDataStore[0].name : "Scenario 1"; maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenarioName}"`; }
+            const barColors = processedMaccData.map(() => '#38bdf8'); newChartConfig.data.datasets[0].backgroundColor = barColors; newChartConfig.data.datasets[0].borderColor = barColors.map(c => '#0ea5e9');
             console.log("[updateMaccChart - Simple] Final Chart Config Data:", JSON.stringify(newChartConfig.data));
-
-            try {
-                maccChartInstance = new Chart(maccCtx, newChartConfig);
-                console.log("[updateMaccChart - Simple] New MACC chart instance created successfully.");
-            } catch (error) {
-                console.error("[updateMaccChart - Simple] Error creating MACC chart:", error);
-                maccScenarioInfo.textContent = "Error displaying MACC chart. Check console for details.";
-            }
+            try { maccChartInstance = new Chart(maccCtx, newChartConfig); console.log("[updateMaccChart - Simple] New MACC chart instance created successfully."); } catch (error) { console.error("[updateMaccChart - Simple] Error creating MACC chart:", error); maccScenarioInfo.textContent = "Error displaying MACC chart. Check console for details."; }
         }
-
 
         // --- Event Listeners & Debounce ---
         function debounce(func, wait) { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
         const debouncedCalculateAllData = debounce(calculateAllData, 350);
-        baselineEmissionsInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData()); baselineYearInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData()); growthRateInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData()); targetReductionInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData());
+        baselineYearInput.addEventListener('input', () => {
+             updateGrowthRateDisplay();
+             if (isToolInitialized) debouncedCalculateAllData();
+        });
+        targetReductionInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData());
+        sbtiCheckbox.addEventListener('change', () => {
+            targetReductionInput.disabled = sbtiCheckbox.checked;
+            sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
+            if (isToolInitialized) debouncedCalculateAllData();
+        });
+
 
         // --- Scenario & Measure Management ---
-        function addScenario() { /* ... (unchanged, calls calculateAllData) ... */
-            const scenarioId = `scenario-${Date.now()}`; const scenarioBlock = document.createElement('div'); scenarioBlock.classList.add('scenario-block'); scenarioBlock.id = scenarioId; const color = scenarioColors[scenarioColorIndex % scenarioColors.length]; scenarioBlock.dataset.color = color; scenarioColorIndex++; const scenarioCount = scenariosListContainer.querySelectorAll('.scenario-block').length + 1; const defaultScenarioName = `Scenario ${scenarioCount}`;
-            scenarioBlock.innerHTML = `<div class="flex justify-between items-center mb-4"><input type="text" value="${defaultScenarioName}" placeholder="Scenario Name" class="scenario-name-input name-input flex-grow mr-3 text-lg"><button class="remove-btn" onclick="deleteScenario('${scenarioId}')">Delete Scenario</button></div><div class="flex justify-between items-center mb-3"><h4 class="text-md font-semibold text-gray-700">Measures</h4><button class="add-btn text-sm py-1.5 px-3" onclick="addMeasure('${scenarioId}')"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-1"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> Add Measure</button></div><div class="measures-container border-t border-slate-200 pt-3 space-y-3 max-h-60 overflow-y-auto pr-2"></div>`;
-            scenariosListContainer.appendChild(scenarioBlock); scenarioBlock.querySelector('.scenario-name-input').addEventListener('input', () => isToolInitialized && debouncedCalculateAllData()); addMeasure(scenarioId); if(isToolInitialized) calculateAllData();
+        function addScenario() { /* ... (unchanged) ... */
+            const scenarioId = `scenario-${Date.now()}`; const scenarioCount = scenariosDataStore.length + 1; const defaultScenarioName = `Scenario ${scenarioCount}`; const color = scenarioColors[scenarioColorIndex % scenarioColors.length]; scenarioColorIndex++;
+            const newScenarioData = { id: scenarioId, name: defaultScenarioName, color: color, measures: [] }; scenariosDataStore.push(newScenarioData);
+            const scenarioBlock = createScenarioBlockElement(newScenarioData); scenariosListContainer.appendChild(scenarioBlock);
+            if(isToolInitialized) calculateAllData();
         }
-        function deleteScenario(scenarioId) { /* ... (unchanged, calls calculateAllData) ... */
-             const scenarioBlock = document.getElementById(scenarioId); if (scenarioBlock) { scenarioBlock.remove(); if(isToolInitialized) calculateAllData(); }
+        function createScenarioBlockElement(scenarioData) { /* ... (unchanged) ... */
+             const scenarioBlock = document.createElement('div'); scenarioBlock.classList.add('scenario-block'); scenarioBlock.id = scenarioData.id; scenarioBlock.dataset.color = scenarioData.color;
+             scenarioBlock.innerHTML = `<div class="flex justify-between items-center mb-3"><input type="text" value="${scenarioData.name}" placeholder="Scenario Name" class="scenario-name-input name-input flex-grow mr-3 text-lg" oninput="updateScenarioName('${scenarioData.id}', this.value)"><div class="flex items-center gap-2"><button type="button" class="edit-btn text-sm" onclick="openMeasuresModal('${scenarioData.id}')">Edit Measures</button><button type="button" class="remove-btn" onclick="deleteScenario('${scenarioData.id}')">Delete</button></div></div><p class="text-xs text-gray-500">${scenarioData.measures.length} measure(s)</p>`;
+             return scenarioBlock;
+        }
+        function updateScenarioName(scenarioId, newName) { /* ... (unchanged) ... */
+            const scenario = scenariosDataStore.find(s => s.id === scenarioId); if (scenario) { scenario.name = newName.trim() || "Unnamed Scenario"; if (scenariosDataStore.length > 0 && scenariosDataStore[0].id === scenarioId) { maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenario.name}"`; } if (trajectoryChartInstance) { const datasetIndex = scenariosDataStore.findIndex(s => s.id === scenarioId); if (datasetIndex !== -1 && trajectoryChartInstance.data.datasets[datasetIndex + 4]) { trajectoryChartInstance.data.datasets[datasetIndex + 4].label = scenario.name; trajectoryChartInstance.update('none'); } } } // Adjusted index +4
+        } window.updateScenarioName = updateScenarioName;
+        function deleteScenario(scenarioId) { /* ... (unchanged) ... */
+            scenariosDataStore = scenariosDataStore.filter(s => s.id !== scenarioId); const scenarioBlock = document.getElementById(scenarioId); if (scenarioBlock) scenarioBlock.remove(); if(isToolInitialized) calculateAllData();
         } window.deleteScenario = deleteScenario;
-        function addMeasure(scenarioId) { /* ... (unchanged, calls calculateAllData via listeners) ... */
-            const scenarioBlock = document.getElementById(scenarioId); if (!scenarioBlock) return; const measuresContainer = scenarioBlock.querySelector('.measures-container'); const measureId = `measure-${Date.now()}`; const measureBlock = document.createElement('div'); measureBlock.classList.add('measure-block'); measureBlock.id = measureId; const currentBaselineYear = parseInt(baselineYearInput.value) || new Date().getFullYear(); const defaultStartYear = Math.min(2050, Math.max(currentBaselineYear, currentBaselineYear + 1)); const measureCount = measuresContainer.querySelectorAll('.measure-block').length + 1; const defaultMeasureName = `Measure ${measureCount}`;
-            measureBlock.innerHTML = `<div class="flex justify-between items-center mb-3"><input type="text" value="${defaultMeasureName}" placeholder="Measure Name" class="measure-name-input name-input flex-grow mr-2 text-sm"><button class="remove-btn text-xs" onclick="removeMeasure('${measureId}')">Remove</button></div><div class="grid grid-cols-2 gap-x-3 gap-y-2"><div><label class="block text-xs font-medium text-gray-600 mb-1">Type</label><select class="measure-type w-full p-1.5 text-xs shadow-sm"><option value="intensive">Intensive</option><option value="extensive">Extensive</option></select></div><div><label class="block text-xs font-medium text-gray-600 mb-1">Reduction (%)</label><input type="number" value="5" min="0" max="100" step="0.1" class="measure-reduction w-full p-1.5 text-xs shadow-sm"></div><div><label class="block text-xs font-medium text-gray-600 mb-1">Lifecycle (yrs)</label><input type="number" value="10" min="1" class="measure-lifecycle w-full p-1.5 text-xs shadow-sm"></div><div><label class="block text-xs font-medium text-gray-600 mb-1">Start Year</label><input type="number" value="${defaultStartYear}" min="${currentBaselineYear}" max="2050" class="measure-start-year w-full p-1.5 text-xs shadow-sm"></div><div><label class="block text-xs font-medium text-gray-600 mb-1">CAPEX ($)</label><input type="number" value="100000" min="0" step="1000" class="measure-capex w-full p-1.5 text-xs shadow-sm"></div><div><label class="block text-xs font-medium text-gray-600 mb-1">OPEX ($/yr)</label><input type="number" value="5000" min="0" step="100" class="measure-opex w-full p-1.5 text-xs shadow-sm"></div></div>`;
-            measuresContainer.appendChild(measureBlock); measureBlock.querySelectorAll('input, select').forEach(input => { input.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData()); });
-        } window.addMeasure = addMeasure;
-        function removeMeasure(measureId) { /* ... (unchanged, calls calculateAllData) ... */
-             const scenarioBlock = document.getElementById(measureId); if (scenarioBlock) { scenarioBlock.remove(); if(isToolInitialized) calculateAllData(); }
-        } window.removeMeasure = removeMeasure;
+
+        function createMeasureBlockElement(measureData = {}) { /* ... (unchanged, scope 3 removed) ... */
+            const measureId = measureData.id || `measure-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            const measureBlock = document.createElement('div'); measureBlock.classList.add('measure-block'); measureBlock.id = measureId;
+            const name = measureData.name || `New Measure`; const reduction = measureData.reduction || 5; const isPermanent = measureData.isPermanent || false; const lifecycle = measureData.lifecycle || 10; const startYear = measureData.startYear || (parseInt(baselineYearInput.value) + 1 || new Date().getFullYear() + 1); const scope = measureData.scope || 'Scope 1'; const capex = measureData.capex || 100000; const opex = measureData.opex || 5000;
+            measureBlock.innerHTML = `<div class="flex justify-between items-center mb-3"><input type="text" value="${name}" placeholder="Measure Name" class="measure-name-input name-input flex-grow mr-2 text-sm"><button type="button" class="remove-btn text-xs" onclick="removeMeasureInModal('${measureId}')">Remove</button></div><div class="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-2"><div><label class="block text-xs font-medium text-gray-600">Reduction (%)</label><input type="number" value="${reduction}" min="0" max="100" step="0.1" class="measure-reduction w-full"></div><div><label class="block text-xs font-medium text-gray-600">Permanent?</label><select class="measure-permanent w-full" onchange="toggleLifecycleInput(this, '${measureId}')"><option value="no" ${!isPermanent ? 'selected' : ''}>No</option><option value="yes" ${isPermanent ? 'selected' : ''}>Yes</option></select></div><div class="lifecycle-input-container ${isPermanent ? 'hidden' : ''}"><label class="block text-xs font-medium text-gray-600">Lifecycle (yrs)</label><input type="number" value="${lifecycle}" min="1" class="measure-lifecycle w-full"></div><div><label class="block text-xs font-medium text-gray-600">Start Year</label><input type="number" value="${startYear}" min="${baselineYearInput.value || 1990}" max="2050" class="measure-start-year w-full"></div><div><label class="block text-xs font-medium text-gray-600">Scope</label><select class="measure-scope w-full"><option value="Scope 1" ${scope === 'Scope 1' ? 'selected' : ''}>Scope 1</option><option value="Scope 2" ${scope === 'Scope 2' ? 'selected' : ''}>Scope 2</option></select></div><div><label class="block text-xs font-medium text-gray-600">CAPEX ($)</label><input type="number" value="${capex}" min="0" step="1000" class="measure-capex w-full"></div><div><label class="block text-xs font-medium text-gray-600">OPEX ($/yr)</label><input type="number" value="${opex}" min="0" step="100" class="measure-opex w-full"></div></div>`;
+            return measureBlock;
+        }
+
+        function addMeasureInModal() { /* ... (unchanged) ... */
+            if (!currentEditingScenarioId) return;
+            const newMeasureBlock = createMeasureBlockElement();
+            modalMeasuresList.appendChild(newMeasureBlock);
+        }
+        modalAddMeasureBtn.addEventListener('click', addMeasureInModal);
+        function removeMeasureInModal(measureId) { /* ... (unchanged) ... */
+            const measureBlock = document.getElementById(measureId); if (measureBlock) { measureBlock.remove(); console.log(`Removed measure block ${measureId} from modal DOM.`); } else { console.warn(`Could not find measure block with ID ${measureId} to remove from modal.`); }
+        } window.removeMeasureInModal = removeMeasureInModal;
+        function toggleLifecycleInput(selectElement, measureId) { /* ... (unchanged) ... */
+            const measureBlock = document.getElementById(measureId); if (!measureBlock) return; const lifecycleContainer = measureBlock.querySelector('.lifecycle-input-container'); if (selectElement.value === 'yes') { lifecycleContainer.classList.add('hidden'); } else { lifecycleContainer.classList.remove('hidden'); }
+        } window.toggleLifecycleInput = toggleLifecycleInput;
 
         // --- Tab Switching Logic ---
         function switchTab(tabId) { /* ... (unchanged) ... */
@@ -362,13 +693,19 @@
         } window.switchTab = switchTab;
 
         // --- Home Page Interaction ---
-        tryToolBtn.addEventListener('click', () => { /* ... (unchanged, calls calculateAllData) ... */
-            homeSection.classList.add('fade-out'); setTimeout(() => { homeSection.classList.add('hidden'); toolSection.classList.remove('hidden'); requestAnimationFrame(() => { toolSection.classList.remove('opacity-0'); toolSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); if (!isToolInitialized) { isToolInitialized = true; if (scenariosListContainer.children.length === 0) { addScenario(); } else { calculateAllData(); } addScenarioBtn.addEventListener('click', addScenario); } }, 500);
+        tryToolBtn.addEventListener('click', () => { /* ... (unchanged) ... */
+            homeSection.classList.add('fade-out'); setTimeout(() => { homeSection.classList.add('hidden'); toolSection.classList.remove('hidden'); requestAnimationFrame(() => { toolSection.classList.remove('opacity-0'); toolSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }); if (!isToolInitialized) { isToolInitialized = true; saveBaselineModal(); updateGrowthRateDisplay(); if (scenariosDataStore.length === 0) { addScenario(); } else { scenariosListContainer.innerHTML = ''; scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); }); calculateAllData(); } addScenarioBtn.addEventListener('click', addScenario); } }, 500);
         });
 
         // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => { /* ... (unchanged) ... */
-            console.log("Page loaded. Tool inactive."); if (!toolSection.classList.contains('hidden')) { toolSection.classList.add('opacity-0'); } switchTab('dashboard');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Page loaded. Tool inactive.");
+            if (!toolSection.classList.contains('hidden')) { toolSection.classList.add('opacity-0'); }
+            switchTab('dashboard');
+            baselineDisplay.textContent = `${(baselineData.scope1 + baselineData.scope2).toFixed(0)} tCO2eq`;
+            updateGrowthRateDisplay();
+            targetReductionInput.disabled = sbtiCheckbox.checked;
+            sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
         });
 
     </script>
