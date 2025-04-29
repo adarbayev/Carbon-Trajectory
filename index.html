@@ -95,7 +95,7 @@
                   <canvas id="maccChart"></canvas>
              </div>
              <p class="text-xs text-slate-500 mt-4 text-center">
-                 *X-axis shows cumulative **annual** abatement potential (tCO2eq/yr). Bar height shows MAC ($/tCO2eq). Bar width represents individual **annual** abatement potential.<br>
+                 *X-axis shows measures sorted by MAC ($/tCO2eq). Bar height shows MAC.<br>
                  *Calculations use **annualized** cost ((CAPEX/Lifecycle) + OPEX) and **annual** abatement (Baseline*Reduction%), without discounting.
              </p>
         </div>
@@ -131,65 +131,70 @@
         const baseTrajectoryChartConfig = { /* ... (unchanged) ... */
              type: 'line', data: { labels: [], datasets: [ { label: 'Business As Usual (BAU)', data: [], borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', tension: 0.1, borderWidth: 2.5, pointBackgroundColor: '#f43f5e', pointRadius: 3, pointHoverRadius: 6, fill: false }, { label: 'Target Path', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', tension: 0.1, borderDash: [6, 6], borderWidth: 2.5, pointBackgroundColor: '#3b82f6', pointRadius: 3, pointHoverRadius: 6, fill: false } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'Year', font: { size: 14, weight: '500' }, color: '#475569' }, grid: { display: false }, ticks: { color: '#64748b' } }, y: { title: { display: true, text: 'Emissions (tCO2eq)', font: { size: 14, weight: '500' }, color: '#475569' }, beginAtZero: true, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b' } } }, plugins: { tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(0, 0, 0, 0.7)', titleFont: { size: 14, weight: '600' }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 4, boxPadding: 5 }, legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 13 }, color: '#334155' } } }, interaction: { mode: 'nearest', axis: 'x', intersect: false } }
         };
-        // *** MACC Chart Config (Using Annual Abatement) ***
+        // *** MACC Chart Config (Simplified Categorical Axis) ***
         const baseMaccChartConfig = {
             type: 'bar',
             data: {
-                labels: [], // Measure names
+                labels: [], // Measure names will go here
                 datasets: [{
-                    label: 'MAC ($/tCO2eq)',
-                    // Data format: { x: [startX, endX], y: value }
-                    data: [],
+                    label: 'MAC ($/tCO2eq)', // This label appears in tooltips if legend is hidden
+                    data: [], // MAC values (y-values)
                     backgroundColor: '#38bdf8',
                     borderColor: '#0ea5e9',
                     borderWidth: 1,
-                    borderSkipped: false,
-                    // Store the full processed measure data array here for tooltips
+                    // Custom data storage for tooltips
                     processedMeasures: []
                 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
+                // indexAxis: 'x', // Default, vertical bars
                 scales: {
-                     x: {
-                         type: 'linear',
-                         beginAtZero: true,
-                         // ** Updated X-axis Title **
-                         title: { display: true, text: 'Cumulative Annual Abatement Potential (tCO2eq/yr)', font: {size: 14, weight: '500'}, color: '#475569' },
-                         grid: { display: false }
+                     x: { // Represents Measures (Categories)
+                         type: 'category', // ** Use category axis **
+                         title: { display: true, text: 'Abatement Measures (Sorted by Cost)', font: {size: 14, weight: '500'}, color: '#475569' },
+                         ticks: {
+                             // Optional: Rotate labels if they overlap
+                             // maxRotation: 90,
+                             // minRotation: 45
+                         }
                      },
-                     y: {
+                     y: { // Represents MAC
                          title: { display: true, text: 'Marginal Abatement Cost ($/tCO2eq)', font: {size: 14, weight: '500'}, color: '#475569' },
+                         // beginAtZero: true // Often good, but allow negative costs
                      }
                 },
                 plugins: {
                     tooltip: {
                         callbacks: {
+                            // Title is the measure name (category label)
                             title: function(tooltipItems) { return tooltipItems[0].label || ''; },
                             label: function(context) {
-                                const measures = context.chart.data.datasets[0].processedMeasures;
-                                const index = context.dataIndex;
-                                const measure = measures && measures[index] ? measures[index] : null;
-                                if (!measure) return '';
-                                return `MAC: $${measure.mac.toFixed(2)} / tCO2eq`;
+                                // Display the MAC value
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) {
+                                    label += '$' + context.parsed.y.toFixed(2) + ' / tCO2eq';
+                                }
+                                return label;
                             },
                             footer: function(tooltipItems) {
+                                // Access the full measure data using the dataIndex
                                 const measures = tooltipItems[0].chart.data.datasets[0].processedMeasures;
                                 const index = tooltipItems[0].dataIndex;
                                 const measure = measures && measures[index] ? measures[index] : null;
                                 if (measure) {
                                     return [
-                                        // ** Updated Tooltip Text **
                                         `Annual Abatement: ${measure.annualAbatement.toFixed(0)} tCO2eq/yr`,
-                                        `Cumulative Annual Abatement: ${measure.cumulativeAnnualAbatement.toFixed(0)} tCO2eq/yr`,
                                         `Annualized Cost: $${measure.annualizedCost.toFixed(0)} /yr`
+                                        // Cumulative is less meaningful here, removed for clarity
                                     ];
                                 }
                                 return '';
                             }
                         }
                     },
-                    legend: { display: false }
+                    legend: { display: false } // Keep legend hidden
                 }
             }
         };
@@ -221,78 +226,38 @@
              scenariosData.forEach(scenario => { const scenarioEmissions = []; const measures = scenario.measures; for (let i = 0; i < years.length; i++) { const currentYear = years[i]; const currentBau = bauEmissions[i]; let yearMultiplier = 1.0; measures.forEach(measure => { const startYear = measure.startYear; const endMeasureYear = startYear + measure.lifecycle - 1; if (currentYear >= startYear && currentYear <= endMeasureYear) { const validReduction = Math.max(0, Math.min(100, measure.reduction)); yearMultiplier *= (1 - validReduction / 100); } }); scenarioEmissions.push(Math.max(0, currentBau * yearMultiplier)); } scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions }); });
              updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories);
 
-             // *** Calculate MACC Data (Using Annual Abatement) ***
+             // *** Calculate MACC Data (Using Annual Abatement for Simplified Bar Chart) ***
              let processedMaccData = [];
-             let cumulativeAnnualAbatement = 0; // Track cumulative *annual* abatement
              if (scenariosData.length > 0 && scenariosData[0].measures.length > 0) {
                   const firstScenario = scenariosData[0];
                   maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
-                  console.log(`[MACC Calc - Annual] Processing scenario: ${firstScenario.name}`);
+                  console.log(`[MACC Calc - Simple] Processing scenario: ${firstScenario.name}`);
 
-                  const measuresWithMac = firstScenario.measures.map(measure => {
+                  processedMaccData = firstScenario.measures.map(measure => {
                       const lifecycle = Math.max(1, measure.lifecycle);
                       const reductionPercent = measure.reduction / 100;
                       const validBaseline = baselineEmissions > 1e-9 ? baselineEmissions : 1e-9;
-
-                      // ** Calculate Annual Abatement **
                       const annualAbatement = validBaseline * reductionPercent;
-
-                      // ** Calculate Annualized Cost **
-                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex; // Avoid division by zero if lifecycle is somehow 0
+                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
                       const annualizedCost = annualizedCapex + measure.opex;
-
-                      // ** Calculate MAC based on annual figures **
                       const mac = (annualAbatement > 1e-9) ? annualizedCost / annualAbatement : Infinity;
 
-                      // console.log(`  Measure: ${measure.name}, Ann Abate: ${annualAbatement}, Ann Cost: ${annualizedCost}, MAC: ${mac}`);
-
-                      // Filter out invalid measures
                       if (annualAbatement <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) {
-                          console.warn(`[MACC Calc - Annual] Skipping measure ${measure.name} due to zero/negative abatement or non-finite MAC/Cost.`);
+                          console.warn(`[MACC Calc - Simple] Skipping measure ${measure.name}.`);
                           return null;
                       }
-
-                      return {
-                          ...measure, // Keep original measure details
-                          annualAbatement: annualAbatement,
-                          annualizedCost: annualizedCost,
-                          mac: mac,
-                          lifecycle: lifecycle // Keep original lifecycle for reference if needed
-                      };
+                      return { ...measure, annualAbatement, annualizedCost, mac };
                   }).filter(m => m !== null);
 
-                  console.log(`[MACC Calc - Annual] Measures after initial calc & filter: ${measuresWithMac.length}`);
+                  console.log(`[MACC Calc - Simple] Measures after initial calc & filter: ${processedMaccData.length}`);
 
                   // Sort valid measures by MAC ascending
-                  measuresWithMac.sort((a, b) => a.mac - b.mac);
+                  processedMaccData.sort((a, b) => a.mac - b.mac);
 
-                  // Calculate cumulative *annual* abatement and prepare chart data structure
-                  measuresWithMac.forEach(measure => {
-                      const startCumulative = cumulativeAnnualAbatement;
-                      // Ensure abatement is positive before adding
-                      if (measure.annualAbatement > 0) {
-                          cumulativeAnnualAbatement += measure.annualAbatement;
-                      }
-                      // Ensure cumulative values are valid numbers
-                      if (!isFinite(startCumulative) || !isFinite(cumulativeAnnualAbatement) || cumulativeAnnualAbatement < startCumulative) {
-                          console.warn(`[MACC Calc - Annual] Skipping measure ${measure.name} due to invalid cumulative range [${startCumulative}, ${cumulativeAnnualAbatement}]`);
-                          return; // Skip this measure if range is invalid
-                      }
-
-                      processedMaccData.push({
-                          ...measure, // Keep all calculated measure data
-                          cumulativeAnnualAbatement: cumulativeAnnualAbatement, // Store final cumulative value
-                          // Data format for floating bar chart
-                          chartData: {
-                              x: [startCumulative, cumulativeAnnualAbatement], // Range on x-axis (cumulative annual potential)
-                              y: measure.mac // Height of the bar (MAC)
-                          }
-                      });
-                  });
-                  console.log("[MACC Calc - Annual] Final processed MACC data for chart:", JSON.stringify(processedMaccData));
+                  console.log("[MACC Calc - Simple] Final processed & sorted MACC data:", JSON.stringify(processedMaccData));
              } else {
                   maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis.";
-                  console.log("[MACC Calc - Annual] No scenarios or no measures in first scenario found.");
+                  console.log("[MACC Calc - Simple] No scenarios or no measures in first scenario found.");
              }
              updateMaccChart(processedMaccData); // Pass the final processed data array
         }
@@ -323,63 +288,45 @@
             trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
         }
 
-        // *** MACC Chart Update Function (Re-verified) ***
+        // *** MACC Chart Update Function (Simplified Categorical Axis) ***
         function updateMaccChart(processedMaccData) {
             if (!maccCtx) { console.error("MACC Chart context (maccCtx) not found!"); return; }
             if (maccChartInstance) { maccChartInstance.destroy(); }
-            console.log("[updateMaccChart] Updating MACC chart with processed data count:", processedMaccData.length);
+            console.log("[updateMaccChart - Simple] Updating MACC chart with processed data count:", processedMaccData.length);
 
             const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
 
-            // Filter data again just before assigning to chart to be extra safe
-            const validProcessedData = processedMaccData.filter(d =>
-                d.chartData &&
-                Array.isArray(d.chartData.x) &&
-                d.chartData.x.length === 2 &&
-                isFinite(d.chartData.x[0]) &&
-                isFinite(d.chartData.x[1]) &&
-                d.chartData.x[1] >= d.chartData.x[0] && // End should not be before start
-                isFinite(d.chartData.y)
-            );
+            // Prepare data for standard bar chart
+            const measureLabels = processedMaccData.map(d => d.name);
+            const macValues = processedMaccData.map(d => d.mac);
 
-             if (validProcessedData.length !== processedMaccData.length) {
-                 console.warn("[updateMaccChart] Some MACC data points were filtered out just before rendering due to invalid format.");
-             }
-             console.log("[updateMaccChart] Valid data points count:", validProcessedData.length);
-
-
-            const chartDataPoints = validProcessedData.map(d => d.chartData);
-            const measureLabels = validProcessedData.map(d => d.name);
-            const measuresForTooltip = validProcessedData; // Use the filtered valid data
-
-            // Check if there's actually data to plot
-            if (chartDataPoints.length === 0) {
-                console.log("[updateMaccChart] No valid data points to plot for MACC chart.");
-                newChartConfig.data.labels = [];
-                newChartConfig.data.datasets[0].data = [];
-                newChartConfig.data.datasets[0].processedMeasures = [];
+            if (measureLabels.length === 0) {
+                console.log("[updateMaccChart - Simple] No valid data points to plot.");
                  maccScenarioInfo.textContent = "No valid measures found for MACC analysis in the first scenario.";
-
+                 newChartConfig.data.labels = [];
+                 newChartConfig.data.datasets[0].data = [];
+                 newChartConfig.data.datasets[0].processedMeasures = [];
             } else {
-                newChartConfig.data.labels = measureLabels;
-                newChartConfig.data.datasets[0].data = chartDataPoints;
-                newChartConfig.data.datasets[0].processedMeasures = measuresForTooltip;
+                newChartConfig.data.labels = measureLabels; // Assign measure names as category labels
+                newChartConfig.data.datasets[0].data = macValues; // Assign MAC values as bar heights
+                // Store the full processed data array for tooltip reference
+                newChartConfig.data.datasets[0].processedMeasures = processedMaccData;
                  const scenarioName = scenariosListContainer.querySelector('.scenario-block .scenario-name-input')?.value || "Scenario 1";
                  maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenarioName}"`;
             }
 
             // Assign colors
-            const barColors = validProcessedData.map(() => '#38bdf8'); // Sky blue
+            const barColors = processedMaccData.map(() => '#38bdf8'); // Sky blue
             newChartConfig.data.datasets[0].backgroundColor = barColors;
-            newChartConfig.data.datasets[0].borderColor = barColors.map(c => '#0ea5e9'); // Slightly darker border
+            newChartConfig.data.datasets[0].borderColor = barColors.map(c => '#0ea5e9');
 
-            console.log("[updateMaccChart] Final Chart Config Data:", JSON.stringify(newChartConfig.data)); // Log final data going into chart
+            console.log("[updateMaccChart - Simple] Final Chart Config Data:", JSON.stringify(newChartConfig.data));
 
             try {
                 maccChartInstance = new Chart(maccCtx, newChartConfig);
-                console.log("[updateMaccChart] New MACC chart instance created successfully.");
+                console.log("[updateMaccChart - Simple] New MACC chart instance created successfully.");
             } catch (error) {
-                console.error("[updateMaccChart] Error creating MACC chart:", error);
+                console.error("[updateMaccChart - Simple] Error creating MACC chart:", error);
                 maccScenarioInfo.textContent = "Error displaying MACC chart. Check console for details.";
             }
         }
