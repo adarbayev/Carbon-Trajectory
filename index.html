@@ -35,7 +35,10 @@
         @media (min-width: 768px) { .home-title { font-size: 4.5rem; } .home-subtitle { font-size: 1.25rem; } }
         .try-tool-btn { background-color: #0ea5e9; color: white; padding: 0.75rem 2rem; border-radius: 0.5rem; font-size: 1.125rem; font-weight: 600; transition: all 0.3s ease-in-out; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: none; cursor: pointer; position: relative; }
         .try-tool-btn:hover { background-color: #0284c7; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); transform: translateY(-2px); }
-        .attribution { margin-top: 3rem; font-size: 0.75rem; color: #6b7280; position: relative; }
+        .attribution { margin-top: 3rem; font-size: 0.75rem; color: #6b7280; position: relative; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .attribution a { color: inherit; text-decoration: none; }
+        .attribution a:hover { text-decoration: underline; }
+        .attribution svg { fill: #6b7280; width: 1rem; height: 1rem; }
 
         /* --- Tool Section Styling --- */
         #tool-section { padding: 1rem 0.5rem; flex-grow: 1; margin-top: 1rem; display: block; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0s linear 0.5s; }
@@ -73,13 +76,22 @@
 </head>
 <body>
 
-    <section id="home-section"> <h1 class="home-title">Carbon<br>Trajectory Tool</h1>
+    <section id="home-section">
+        <h1 class="home-title">Carbon<br>Trajectory Tool</h1>
         <p class="home-subtitle">Model your emissions reduction scenarios and analyze costs with MACC analysis.</p>
         <button id="try-tool-btn" class="try-tool-btn">TRY the TRAJECTORY TOOL</button>
-        <p class="attribution">Built by Anvar Darbayev</p>
+        <p class="attribution">
+            Built by Anvar Darbayev
+            <a href="https://www.linkedin.com/in/anvard/" target="_blank" rel="noopener noreferrer" title="Anvar Darbayev LinkedIn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path>
+                </svg>
+            </a>
+        </p>
     </section>
 
-    <section id="tool-section" class="hidden opacity-0"> <button class="home-button" onclick="showHomePage()">
+    <section id="tool-section" class="hidden opacity-0">
+        <button class="home-button" onclick="showHomePage()">
             &larr; Home
         </button>
 
@@ -224,7 +236,8 @@
             currentEditingScenarioId = null;
             measuresModal.classList.remove('active');
         }
-        function saveAndCloseMeasuresModal() { /* ... (unchanged) ... */
+        // *** Updated saveAndCloseMeasuresModal to include rampYears ***
+        function saveAndCloseMeasuresModal() {
             if (!currentEditingScenarioId) { console.log("Save cancelled: No scenario ID being edited."); closeMeasuresModal(); return; }
             const scenarioIndex = scenariosDataStore.findIndex(s => s.id === currentEditingScenarioId);
             if (scenarioIndex === -1) { console.error("Scenario to save not found in store:", currentEditingScenarioId); closeMeasuresModal(); return; }
@@ -244,6 +257,17 @@
                      let lifecycle = 1;
                      if (isPermanent) { lifecycle = 99; } else if (lifecycleInput) { lifecycle = parseInt(lifecycleInput.value) || 1; }
                      lifecycle = Math.max(1, lifecycle);
+
+                     // ** Read Ramp-up values **
+                     const instantEl = block.querySelector('.measure-instant');
+                     const isInstant = instantEl ? instantEl.value === 'yes' : true; // Default to yes if element not found
+                     const rampInput = block.querySelector('.measure-ramp');
+                     let rampYears = 1; // Default to instant
+                     if (!isInstant && rampInput) {
+                         rampYears = parseInt(rampInput.value) || 1;
+                     }
+                     rampYears = Math.max(1, rampYears); // Ensure at least 1 year
+
                      const startYearEl = block.querySelector('.measure-start-year');
                      const startYear = startYearEl ? parseInt(startYearEl.value) || (parseInt(baselineYearInput.value) || 1990) : (parseInt(baselineYearInput.value) || 1990);
                      const scopeEl = block.querySelector('.measure-scope');
@@ -252,7 +276,10 @@
                      const capex = capexEl ? parseFloat(capexEl.value) || 0 : 0;
                      const opexEl = block.querySelector('.measure-opex');
                      const opex = opexEl ? parseFloat(opexEl.value) || 0 : 0;
-                     const measureData = { id: block.id || `measure-${Date.now()}-${index}`, name, reduction, isPermanent, lifecycle, startYear, scope, capex, opex };
+                     const measureData = {
+                         id: block.id || `measure-${Date.now()}-${index}`, name, reduction, isPermanent, lifecycle,
+                         isInstant, rampYears, // Store ramp-up info
+                         startYear, scope, capex, opex };
                      console.log(`Read measure ${index + 1}:`, measureData);
                      if (measureData.reduction > 0 && measureData.reduction <= 100 && measureData.lifecycle > 0 && measureData.startYear >= (parseInt(baselineYearInput.value) || 1990) && measureData.startYear <= 2050) {
                          updatedMeasures.push(measureData);
@@ -268,7 +295,7 @@
         }
 
         // --- Calculation & Data ---
-        function calculateAllData() { /* ... (Scope logic updated) ... */
+        function calculateAllData() {
              if (!isToolInitialized) return;
              console.log("[calculateAllData] Starting calculation...");
              const totalBaselineEmissions = baselineData.scope1 + baselineData.scope2;
@@ -302,43 +329,68 @@
                  for (let i = 0; i < years.length; i++) { const year = years[i]; if (year === baselineYear) { targetEmissions.push(totalBaselineEmissions); } else { const yearsTotal = endYear - baselineYear; const progressRatio = yearsTotal > 0 ? Math.max(0, Math.min(1,(year - baselineYear) / yearsTotal)) : 1; const linearTarget = totalBaselineEmissions + (finalTarget - totalBaselineEmissions) * progressRatio; targetEmissions.push(Math.max(0, linearTarget)); } }
              }
 
-             // Calculate Scenarios using Scope Logic
+             // ** Calculate Scenarios using Scope & Ramp-up Logic **
              const scenariosData = getAllScenariosData();
              const scenarioTrajectories = [];
              scenariosData.forEach(scenario => {
-                 const scenarioEmissions = []; const measures = scenario.measures;
+                 const scenarioEmissions = [];
+                 const measures = scenario.measures;
                  for (let i = 0; i < years.length; i++) {
-                     const currentYear = years[i]; const currentBau = bauEmissions[i]; let totalYearlyReduction = 0;
+                     const currentYear = years[i];
+                     const currentBau = bauEmissions[i];
+                     let totalYearlyReduction = 0; // Reset for each year
+
                      measures.forEach(measure => {
                          const endMeasureYear = measure.startYear + measure.lifecycle - 1;
+                         // Check if measure is active in the current year
                          if (currentYear >= measure.startYear && currentYear <= endMeasureYear) {
-                             const reductionPercent = measure.reduction / 100; let absoluteReduction = 0;
-                             if (measure.scope === 'Scope 1') { absoluteReduction = (baselineData.scope1 || 0) * reductionPercent; }
-                             else if (measure.scope === 'Scope 2') { absoluteReduction = (baselineData.scope2 || 0) * reductionPercent; }
+                             // Calculate ramp-up factor
+                             const yrsIn = currentYear - measure.startYear + 1;
+                             const rampYears = Math.max(1, measure.rampYears || 1); // Ensure rampYears is at least 1
+                             const rampFactor = Math.min(1, yrsIn / rampYears);
+
+                             const effectiveReductionPercent = (measure.reduction / 100) * rampFactor;
+                             let absoluteReduction = 0;
+                             // Apply reduction to the correct baseline scope
+                             if (measure.scope === 'Scope 1') {
+                                 absoluteReduction = (baselineData.scope1 || 0) * effectiveReductionPercent;
+                             } else if (measure.scope === 'Scope 2') {
+                                 absoluteReduction = (baselineData.scope2 || 0) * effectiveReductionPercent;
+                             }
+                             // Add this measure's absolute reduction to the yearly total
                              totalYearlyReduction += absoluteReduction;
                          }
                      });
+                     // Subtract the total absolute reduction from the BAU for that year
                      scenarioEmissions.push(Math.max(0, currentBau - totalYearlyReduction));
                  }
                  scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions });
              });
              updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories, useSBTiLogic ? sbtiNearTermLevel : null, useSBTiLogic ? sbtiLongTermLevel : null);
 
-             // Calculate MACC Data
+             // Calculate MACC Data (Remains based on full potential/annualized cost)
              let processedMaccData = [];
              if (scenariosDataStore.length > 0 && scenariosDataStore[0].measures.length > 0) {
-                  const firstScenario = scenariosDataStore[0]; maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
+                  const firstScenario = scenariosDataStore[0];
+                  maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
                   processedMaccData = firstScenario.measures.map(measure => {
-                      const lifecycle = measure.lifecycle; const reductionPercent = measure.reduction / 100; let relevantBaseline = 0;
-                      if (measure.scope === 'Scope 1') { relevantBaseline = baselineData.scope1 || 0; } else if (measure.scope === 'Scope 2') { relevantBaseline = baselineData.scope2 || 0; }
-                      const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9; const annualAbatement = validBaseline * reductionPercent;
-                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex; const annualizedCost = annualizedCapex + measure.opex;
+                      const lifecycle = measure.lifecycle; // Use stored lifecycle (already adjusted for permanent)
+                      const reductionPercent = measure.reduction / 100; // Use full reduction potential
+                      let relevantBaseline = 0;
+                      if (measure.scope === 'Scope 1') { relevantBaseline = baselineData.scope1 || 0; }
+                      else if (measure.scope === 'Scope 2') { relevantBaseline = baselineData.scope2 || 0; }
+                      const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9;
+                      const annualAbatement = validBaseline * reductionPercent; // Full annual abatement
+                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
+                      const annualizedCost = annualizedCapex + measure.opex;
                       const mac = (annualAbatement > 1e-9) ? annualizedCost / annualAbatement : Infinity;
                       if (annualAbatement <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
                       return { ...measure, annualAbatement, annualizedCost, mac, scope: measure.scope };
                   }).filter(m => m !== null);
                   processedMaccData.sort((a, b) => a.mac - b.mac);
-             } else { maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis."; }
+             } else {
+                  maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis.";
+             }
              updateMaccChart(processedMaccData);
         }
 
@@ -398,20 +450,105 @@
              scenarioBlock.innerHTML = `<div class="flex justify-between items-center mb-3"><input type="text" value="${scenarioData.name}" placeholder="Scenario Name" class="scenario-name-input name-input flex-grow mr-3 text-lg" oninput="updateScenarioName('${scenarioData.id}', this.value)"><div class="flex items-center gap-2"><button type="button" class="edit-btn text-sm" onclick="openMeasuresModal('${scenarioData.id}')">Edit Measures</button><button type="button" class="remove-btn" onclick="deleteScenario('${scenarioData.id}')">Delete</button></div></div><p class="text-xs text-gray-500">${scenarioData.measures.length} measure(s)</p>`;
              return scenarioBlock;
         }
+        // *** Make sure onclick functions are globally accessible ***
+        window.updateScenarioName = updateScenarioName;
+        window.deleteScenario = deleteScenario;
+        window.openMeasuresModal = openMeasuresModal;
+        window.removeMeasureInModal = removeMeasureInModal;
+        window.toggleLifecycleInput = toggleLifecycleInput; // Added for ramp-up
+        window.toggleRampYearsInput = toggleRampYearsInput; // Added for ramp-up
+        window.switchTab = switchTab;
+        window.showHomePage = showHomePage;
+        window.openBaselineModal = openBaselineModal;
+        window.closeBaselineModal = closeBaselineModal;
+        window.saveBaselineModal = saveBaselineModal;
+        window.openGrowthRateModal = openGrowthRateModal;
+        window.closeGrowthRateModal = closeGrowthRateModal;
+        window.saveGrowthRateModal = saveGrowthRateModal;
+        window.closeMeasuresModal = closeMeasuresModal;
+        window.saveAndCloseMeasuresModal = saveAndCloseMeasuresModal;
+
+
         function updateScenarioName(scenarioId, newName) { /* ... (unchanged, but adjusted index) ... */
             const scenario = scenariosDataStore.find(s => s.id === scenarioId); if (scenario) { scenario.name = newName.trim() || "Unnamed Scenario"; if (scenariosDataStore.length > 0 && scenariosDataStore[0].id === scenarioId) { maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${scenario.name}"`; } if (trajectoryChartInstance) { const datasetIndex = scenariosDataStore.findIndex(s => s.id === scenarioId); const chartDatasetIndex = datasetIndex + 4; /* Adjust for base + SBTi lines */ if (datasetIndex !== -1 && trajectoryChartInstance.data.datasets[chartDatasetIndex]) { trajectoryChartInstance.data.datasets[chartDatasetIndex].label = scenario.name; trajectoryChartInstance.update('none'); } } }
-        } window.updateScenarioName = updateScenarioName;
+        }
         function deleteScenario(scenarioId) { /* ... (unchanged) ... */
             scenariosDataStore = scenariosDataStore.filter(s => s.id !== scenarioId); const scenarioBlock = document.getElementById(scenarioId); if (scenarioBlock) scenarioBlock.remove(); if(isToolInitialized) calculateAllData();
-        } window.deleteScenario = deleteScenario;
+        }
 
-        function createMeasureBlockElement(measureData = {}) { /* ... (unchanged, scope 3 removed) ... */
+        // *** Updated createMeasureBlockElement with Ramp-up ***
+        function createMeasureBlockElement(measureData = {}) {
             const measureId = measureData.id || `measure-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-            const measureBlock = document.createElement('div'); measureBlock.classList.add('measure-block'); measureBlock.id = measureId;
-            const name = measureData.name || `New Measure`; const reduction = measureData.reduction || 5; const isPermanent = measureData.isPermanent || false; const lifecycle = measureData.lifecycle || 10; const startYear = measureData.startYear || (parseInt(baselineYearInput.value) + 1 || new Date().getFullYear() + 1); const scope = measureData.scope || 'Scope 1'; const capex = measureData.capex || 100000; const opex = measureData.opex || 5000;
-            measureBlock.innerHTML = `<div class="flex justify-between items-center mb-3"><input type="text" value="${name}" placeholder="Measure Name" class="measure-name-input name-input flex-grow mr-2 text-sm"><button type="button" class="remove-btn text-xs" onclick="removeMeasureInModal('${measureId}')">Remove</button></div><div class="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-2"><div><label class="block text-xs font-medium text-gray-600">Reduction (%)</label><input type="number" value="${reduction}" min="0" max="100" step="0.1" class="measure-reduction w-full"></div><div><label class="block text-xs font-medium text-gray-600">Permanent?</label><select class="measure-permanent w-full" onchange="toggleLifecycleInput(this, '${measureId}')"><option value="no" ${!isPermanent ? 'selected' : ''}>No</option><option value="yes" ${isPermanent ? 'selected' : ''}>Yes</option></select></div><div class="lifecycle-input-container ${isPermanent ? 'hidden' : ''}"><label class="block text-xs font-medium text-gray-600">Lifecycle (yrs)</label><input type="number" value="${lifecycle}" min="1" class="measure-lifecycle w-full"></div><div><label class="block text-xs font-medium text-gray-600">Start Year</label><input type="number" value="${startYear}" min="${baselineYearInput.value || 1990}" max="2050" class="measure-start-year w-full"></div><div><label class="block text-xs font-medium text-gray-600">Scope</label><select class="measure-scope w-full"><option value="Scope 1" ${scope === 'Scope 1' ? 'selected' : ''}>Scope 1</option><option value="Scope 2" ${scope === 'Scope 2' ? 'selected' : ''}>Scope 2</option></select></div><div><label class="block text-xs font-medium text-gray-600">CAPEX ($)</label><input type="number" value="${capex}" min="0" step="1000" class="measure-capex w-full"></div><div><label class="block text-xs font-medium text-gray-600">OPEX ($/yr)</label><input type="number" value="${opex}" min="0" step="100" class="measure-opex w-full"></div></div>`;
+            const measureBlock = document.createElement('div');
+            measureBlock.classList.add('measure-block');
+            measureBlock.id = measureId;
+
+            const name = measureData.name || `New Measure`;
+            const reduction = measureData.reduction || 5;
+            const isPermanent = measureData.isPermanent || false;
+            const lifecycle = measureData.lifecycle || 10;
+            const isInstant = measureData.isInstant === undefined ? true : measureData.isInstant; // Default to instant
+            const rampYears = measureData.rampYears || 1;
+            const startYear = measureData.startYear || (parseInt(baselineYearInput.value) + 1 || new Date().getFullYear() + 1);
+            const scope = measureData.scope || 'Scope 1';
+            const capex = measureData.capex || 100000;
+            const opex = measureData.opex || 5000;
+
+            measureBlock.innerHTML = `
+                <div class="flex justify-between items-center mb-3">
+                     <input type="text" value="${name}" placeholder="Measure Name" class="measure-name-input name-input flex-grow mr-2 text-sm">
+                     <button type="button" class="remove-btn text-xs" onclick="removeMeasureInModal('${measureId}')">Remove</button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-2"> <div>
+                        <label class="block text-xs font-medium text-gray-600">Reduction (%)</label>
+                        <input type="number" value="${reduction}" min="0" max="100" step="0.1" class="measure-reduction w-full">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">Scope</label>
+                        <select class="measure-scope w-full">
+                            <option value="Scope 1" ${scope === 'Scope 1' ? 'selected' : ''}>Scope 1</option>
+                            <option value="Scope 2" ${scope === 'Scope 2' ? 'selected' : ''}>Scope 2</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">Start Year</label>
+                        <input type="number" value="${startYear}" min="${baselineYearInput.value || 1990}" max="2050" class="measure-start-year w-full">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">Permanent?</label>
+                        <select class="measure-permanent w-full" onchange="toggleLifecycleInput(this, '${measureId}')">
+                            <option value="no" ${!isPermanent ? 'selected' : ''}>No</option>
+                            <option value="yes" ${isPermanent ? 'selected' : ''}>Yes</option>
+                        </select>
+                    </div>
+                     <div class="lifecycle-input-container ${isPermanent ? 'hidden' : ''}">
+                        <label class="block text-xs font-medium text-gray-600">Lifecycle (yrs)</label>
+                        <input type="number" value="${lifecycle}" min="1" class="measure-lifecycle w-full">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">Instant Effect?</label>
+                        <select class="measure-instant w-full" onchange="toggleRampYearsInput(this, '${measureId}')">
+                            <option value="yes" ${isInstant ? 'selected' : ''}>Yes</option>
+                            <option value="no" ${!isInstant ? 'selected' : ''}>No</option>
+                        </select>
+                    </div>
+                     <div class="ramp-years-input-container ${isInstant ? 'hidden' : ''}">
+                        <label class="block text-xs font-medium text-gray-600">Ramp-up (yrs)</label>
+                        <input type="number" value="${rampYears}" min="1" step="1" class="measure-ramp w-full">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">CAPEX ($)</label>
+                        <input type="number" value="${capex}" min="0" step="1000" class="measure-capex w-full">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-600">OPEX ($/yr)</label>
+                        <input type="number" value="${opex}" min="0" step="100" class="measure-opex w-full">
+                    </div>
+                </div>
+            `;
             return measureBlock;
         }
+
 
         function addMeasureInModal() { /* ... (unchanged) ... */
             if (!currentEditingScenarioId) return;
@@ -421,16 +558,28 @@
         modalAddMeasureBtn.addEventListener('click', addMeasureInModal);
         function removeMeasureInModal(measureId) { /* ... (unchanged) ... */
             const measureBlock = document.getElementById(measureId); if (measureBlock) { measureBlock.remove(); console.log(`Removed measure block ${measureId} from modal DOM.`); } else { console.warn(`Could not find measure block with ID ${measureId} to remove from modal.`); }
-        } window.removeMeasureInModal = removeMeasureInModal;
+        }
         function toggleLifecycleInput(selectElement, measureId) { /* ... (unchanged) ... */
             const measureBlock = document.getElementById(measureId); if (!measureBlock) return; const lifecycleContainer = measureBlock.querySelector('.lifecycle-input-container'); if (selectElement.value === 'yes') { lifecycleContainer.classList.add('hidden'); } else { lifecycleContainer.classList.remove('hidden'); }
-        } window.toggleLifecycleInput = toggleLifecycleInput;
+        }
+        // ** New function to toggle ramp-up input visibility **
+        function toggleRampYearsInput(selectElement, measureId) {
+             const measureBlock = document.getElementById(measureId);
+             if (!measureBlock) return;
+             const rampYearsContainer = measureBlock.querySelector('.ramp-years-input-container');
+             if (selectElement.value === 'yes') { // Instant effect = Yes
+                 rampYearsContainer.classList.add('hidden');
+             } else { // Instant effect = No
+                 rampYearsContainer.classList.remove('hidden');
+             }
+         }
+
 
         // --- Tab Switching Logic ---
         function switchTab(tabId) { /* ... (unchanged) ... */
             activeTab = tabId; tabContentDashboard.classList.add('hidden'); tabContentMacc.classList.add('hidden'); tabBtnDashboard.classList.remove('active'); tabBtnMacc.classList.remove('active');
             if (tabId === 'dashboard') { tabContentDashboard.classList.remove('hidden'); tabBtnDashboard.classList.add('active'); } else if (tabId === 'macc') { tabContentMacc.classList.remove('hidden'); tabBtnMacc.classList.add('active'); }
-        } window.switchTab = switchTab;
+        }
 
         // --- Page Navigation Logic ---
         // *** Reverted showPage function to use fade ***
