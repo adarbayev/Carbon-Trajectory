@@ -38,9 +38,9 @@
         .attribution { margin-top: 3rem; font-size: 0.75rem; color: #6b7280; /* gray-500 */ }
 
         /* --- Tool Section Styling --- */
-        #tool-section { padding: 1rem 0.5rem; flex-grow: 1; margin-top: 2rem; display: none; /* Hidden by default */ }
-        @media (min-width: 768px) { #tool-section { padding: 2rem; } }
-        .home-button { position: absolute; top: 1.5rem; left: 1.5rem; background-color: #e0f2fe; color: #0c4a6e; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; border: 1px solid #bae6fd; cursor: pointer; transition: all 0.2s ease; z-index: 50; }
+        #tool-section { padding: 1rem 0.5rem; flex-grow: 1; margin-top: 1rem; /* Reduced margin */ display: none; /* Hidden by default */ }
+        @media (min-width: 768px) { #tool-section { padding: 2rem; margin-top: 1rem; } }
+        .home-button { margin-bottom: 1rem; background-color: #e0f2fe; color: #0c4a6e; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; border: 1px solid #bae6fd; cursor: pointer; transition: all 0.2s ease; display: inline-block; }
         .home-button:hover { background-color: #bae6fd; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
         /* --- Tab Styling --- */
@@ -51,7 +51,7 @@
         .tab-content { border: 1px solid #cbd5e1; border-top: none; padding: 1.5rem; background-color: #ffffff; border-radius: 0 0 0.375rem 0.375rem; }
 
         /* --- Utility & Existing Tool Styles --- */
-        .fade-out { opacity: 0; } .hidden { display: none; }
+        .hidden { display: none !important; } /* Use important to ensure override */
         .chart-container, .macc-chart-container { position: relative; height: 70vh; width: 100%; background-color: #ffffff; border-radius: 0.5rem; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         .scenario-block { border: 1px solid #99f6e4; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; background-color: #ffffff; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05); }
         .measure-block { border: 1px solid #e0f2fe; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; background-color: #f0f9ff; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); transition: box-shadow 0.2s ease-in-out; } .measure-block:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
@@ -71,20 +71,17 @@
 </head>
 <body>
 
-    <section id="home-section">
-        <h1 class="home-title">Carbon<br>Trajectory Tool</h1>
+    <section id="home-section"> <h1 class="home-title">Carbon<br>Trajectory Tool</h1>
         <p class="home-subtitle">Model your emissions reduction scenarios and analyze costs with MACC analysis.</p>
         <button id="try-tool-btn" class="try-tool-btn">TRY the TRAJECTORY TOOL</button>
         <p class="attribution">Built by Anvar Darbayev</p>
     </section>
 
-    <section id="tool-section" class="hidden">
-        <button class="home-button" onclick="showPage('home-section')">
+    <section id="tool-section" class="hidden"> <button class="home-button" onclick="showPage('home-section')">
             &larr; Home
         </button>
 
-        <div class="tab-container mt-12">
-            <div class="mb-4 border-b border-gray-200">
+        <div class="tab-container mt-4"> <div class="mb-4 border-b border-gray-200">
                 <nav class="-mb-px flex" aria-label="Tabs">
                     <button id="tab-btn-dashboard" class="tab-button active" onclick="switchTab('dashboard')">Trajectory Dashboard</button>
                     <button id="tab-btn-macc" class="tab-button" onclick="switchTab('macc')">MACC Analysis</button>
@@ -433,57 +430,92 @@
         } window.switchTab = switchTab;
 
         // --- Page Navigation Logic ---
-        function showPage(pageId) {
-            console.log(`[showPage] Attempting to show: ${pageId}`);
-            homeSection.classList.add('hidden');
-            toolSection.classList.add('hidden');
-            const pageToShow = document.getElementById(pageId);
-            if (pageToShow) {
-                pageToShow.classList.remove('hidden');
-                console.log(`[showPage] Successfully shown: ${pageId}`);
-            } else {
-                console.error(`[showPage] Element with ID ${pageId} not found!`);
+        // *** Simplified showPage function ***
+        function showPage(pageIdToShow) {
+            console.log(`[showPage] Attempting to show: ${pageIdToShow}`);
+            if (pageIdToShow === 'tool-section') {
+                homeSection.classList.add('hidden'); // Hide home
+                toolSection.classList.remove('hidden'); // Show tool
+                 // Scroll tool section into view smoothly if needed
+                 // (May not be necessary without fade, but doesn't hurt)
+                toolSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else { // Assume home-section
+                toolSection.classList.add('hidden'); // Hide tool
+                homeSection.classList.remove('hidden'); // Show home
             }
-             window.scrollTo(0, 0);
+             console.log(`[showPage] Now showing: ${pageIdToShow}`);
+        }
+        // *** Renamed back to showHomePage for clarity ***
+        function showHomePage() {
+            showPage('home-section');
+        }
+
+
+        // --- Tool Initialization Function ---
+        function initializeTool() {
+             if (isToolInitialized) return;
+             console.log("[initializeTool] Initializing tool...");
+             isToolInitialized = true;
+             saveBaselineModal(); // Initialize baseline display based on modal defaults
+             updateGrowthRateDisplay(); // Initialize growth display based on defaults
+             if (scenariosDataStore.length === 0) {
+                 addScenario(); // Add default scenario and trigger calculation
+             } else {
+                 // If data was pre-loaded, render scenarios and calculate
+                 scenariosListContainer.innerHTML = '';
+                 scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); });
+                 calculateAllData();
+             }
+             // Attach listeners for elements *inside* the tool section now
+             if(addScenarioBtn) { addScenarioBtn.addEventListener('click', addScenario); } else { console.error("Add Scenario button not found during initialization!"); }
+             baselineYearInput.addEventListener('input', () => { updateGrowthRateDisplay(); debouncedCalculateAllData(); });
+             targetReductionInput.addEventListener('input', debouncedCalculateAllData);
+             sbtiCheckbox.addEventListener('change', () => { targetReductionInput.disabled = sbtiCheckbox.checked; sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked); debouncedCalculateAllData(); });
+             console.log("[initializeTool] Initialization complete.");
         }
 
         // --- Home Page Interaction ---
-        // ** Ensure event listener is attached correctly **
-        function setupHomeButtonListener() {
-            if (tryToolBtn) {
+        // ** Simplified Event Listener Attachment **
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Page loaded. Tool inactive.");
+            // Start with home section visible, tool hidden
+            homeSection.classList.remove('hidden');
+            toolSection.classList.add('hidden');
+
+            // Set initial displays based on defaults
+            baselineDisplay.textContent = `${(baselineData.scope1 + baselineData.scope2).toFixed(0)} tCO2eq`;
+            updateGrowthRateDisplay();
+            targetReductionInput.disabled = sbtiCheckbox.checked;
+            sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
+
+            // Attach the home button listener here now that the element is guaranteed to exist
+             if (tryToolBtn) {
                  tryToolBtn.addEventListener('click', () => {
-                    console.log("[tryToolBtn] Clicked!");
-                    showPage('tool-section');
-                    if (!isToolInitialized) {
-                        console.log("[tryToolBtn] Initializing tool...");
-                        isToolInitialized = true;
-                        saveBaselineModal(); // Initialize baseline display
-                        updateGrowthRateDisplay(); // Initialize growth display
-                        if (scenariosDataStore.length === 0) {
-                            addScenario(); // Add default scenario and trigger calculation
-                        } else {
-                            // If data was pre-loaded, render scenarios and calculate
-                            scenariosListContainer.innerHTML = '';
-                            scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); });
-                            calculateAllData();
-                        }
-                        // Ensure this listener is added *after* the button exists in the DOM
-                        if(addScenarioBtn) {
-                            addScenarioBtn.addEventListener('click', addScenario);
-                        } else {
-                             console.error("Add Scenario button not found during initialization!");
-                        }
-                         console.log("[tryToolBtn] Initialization complete.");
-                    } else {
-                         console.log("[tryToolBtn] Tool already initialized, recalculating data...");
-                         calculateAllData(); // Recalculate if already initialized
-                    }
-                });
-                console.log("Event listener attached to tryToolBtn.");
-            } else {
-                console.error("tryToolBtn not found!");
-            }
-        }
+                     console.log("[tryToolBtn] Clicked!");
+                     showPage('tool-section'); // Switch page
+                     initializeTool(); // Initialize if not already done
+                 });
+                 console.log("Event listener attached to tryToolBtn.");
+             } else {
+                 console.error("tryToolBtn not found!");
+             }
+
+            // Attach other listeners that need the DOM ready
+             baselineYearInput.addEventListener('input', () => {
+                 updateGrowthRateDisplay();
+                 if (isToolInitialized) debouncedCalculateAllData();
+             });
+             targetReductionInput.addEventListener('input', () => {
+                 if (isToolInitialized) debouncedCalculateAllData();
+             });
+             sbtiCheckbox.addEventListener('change', () => {
+                 targetReductionInput.disabled = sbtiCheckbox.checked;
+                 sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
+                 if (isToolInitialized) debouncedCalculateAllData();
+             });
+             // addScenarioBtn listener is added during initializeTool
+
+        }); // End DOMContentLoaded
 
 
          // --- Background Animation ---
@@ -496,36 +528,6 @@
             homeSection.style.setProperty('--y', `${yPercent}%`);
         });
 
-
-        // --- Initial Setup ---
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("Page loaded. Tool inactive.");
-            showPage('home-section'); // Start on home page
-            baselineDisplay.textContent = `${(baselineData.scope1 + baselineData.scope2).toFixed(0)} tCO2eq`;
-            updateGrowthRateDisplay();
-            targetReductionInput.disabled = sbtiCheckbox.checked;
-            sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
-
-            // ** Attach the home button listener here **
-            setupHomeButtonListener();
-
-            // Attach other listeners that need the DOM ready
-             baselineYearInput.addEventListener('input', () => {
-                 updateGrowthRateDisplay();
-                 if (isToolInitialized) debouncedCalculateAllData();
-             });
-             targetReductionInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData());
-             sbtiCheckbox.addEventListener('change', () => {
-                 targetReductionInput.disabled = sbtiCheckbox.checked;
-                 sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
-                 if (isToolInitialized) debouncedCalculateAllData();
-             });
-             // Note: addScenarioBtn listener is added during initializeTool if tool is not initialized on load
-             if (isToolInitialized && addScenarioBtn) {
-                 addScenarioBtn.addEventListener('click', addScenario);
-             }
-
-        }); // End DOMContentLoaded
 
     </script>
 
