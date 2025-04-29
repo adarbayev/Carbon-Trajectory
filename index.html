@@ -27,7 +27,7 @@
         .modal-measures-container::-webkit-scrollbar-track { background: #e0f2fe; border-radius: 10px; }
         .modal-measures-container::-webkit-scrollbar-thumb { background: #7dd3fc; border-radius: 10px; }
 
-        /* --- Home Section Styles (Unchanged) --- */
+        /* --- Home Section Styling --- */
         #home-section { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center; padding: 2rem; position: relative; overflow: hidden; background-color: #f0f9ff; transition: background 0.3s ease-out; }
         #home-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #bae6fd 0%, #e0f2fe 40%, #f0f9ff 70%); z-index: -1; transition: background 0.2s linear; }
         .home-title { font-size: 3rem; font-weight: 800; color: #0c4a6e; margin-bottom: 0.5rem; line-height: 1.1; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
@@ -95,58 +95,16 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                     <div class="lg:col-span-1 bg-white p-0 rounded-lg flex flex-col h-full">
                         <h2 class="section-header">Inputs</h2>
-                        <div class="mb-6 border-b border-slate-200 pb-5">
-                            <h3 class="subsection-header flex justify-between items-center">
-                                <span>Baseline</span>
-                                <button class="edit-btn text-sm" onclick="openBaselineModal()">Edit Baseline</button>
-                            </h3>
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div><label>Total Baseline Emissions</label><div id="baseline-display" class="mt-1 p-2 border border-gray-200 rounded bg-gray-50 text-center font-medium">10000 tCO2eq</div></div>
-                                <div><label for="baseline-year">Baseline Year</label><input type="number" id="baseline-year" value="2024" min="2015" max="2050" class="w-full shadow-sm"></div>
-                            </div>
-                        </div>
-                        <div class="mb-6 border-b border-slate-200 pb-5">
-                             <h3 class="subsection-header flex justify-between items-center">
-                                <span>Projections</span>
-                                <button class="edit-btn text-sm" onclick="openGrowthRateModal()">Edit Growth Rates</button>
-                            </h3>
-                             <p class="text-xs text-slate-500 mt-1">Linear growth rates (% of baseline) applied per period.</p>
-                             <div class="mt-2 p-2 border border-gray-200 rounded bg-gray-50 text-sm">
-                                 <span id="growth-display-p1">P1 (2024-2030): 2.0%</span><br>
-                                 <span id="growth-display-p2">P2 (2031-2040): 1.5%</span><br>
-                                 <span id="growth-display-p3">P3 (2041-2050): 1.0%</span>
-                             </div>
-                        </div>
-                         <div class="mb-6 border-b border-slate-200 pb-5">
-                            <h3 class="subsection-header">Target</h3>
-                             <div class="flex items-center mb-2">
-                                 <input id="sbti-checkbox" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                 <label for="sbti-checkbox" class="ml-2 block text-sm text-gray-900">Align target with SBTi (1.5°C Pathway)?</label>
-                             </div>
-                             <p id="sbti-note" class="text-xs text-slate-500 mt-1 mb-3 hidden">Applies -42% by near-term target year (baseline+10yrs) and -90% by 2050 vs baseline year emissions.</p>
-                             <div><label for="target-reduction">Manual 2050 Target Reduction (%)</label><input type="number" id="target-reduction" value="50" min="0" max="100" class="w-full shadow-sm"></div>
-                        </div>
-                        <div class="flex-grow flex flex-col">
-                            <div class="flex justify-between items-center mb-4"><h2 class="section-header mb-0 pb-0 border-b-0">Scenarios</h2><button id="add-scenario-btn" class="add-btn"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>Add Scenario</button></div>
-                            <div id="scenarios-list" class="flex-grow overflow-y-auto -mr-3 pr-3 space-y-4" style="max-height: calc(70vh - 450px);"></div> </div>
+                        <div class="mb-6 border-b border-slate-200 pb-5"> <h3 class="subsection-header flex justify-between items-center"> <span>Baseline</span> <button class="edit-btn text-sm" onclick="openBaselineModal()">Edit Baseline</button> </h3> <div class="grid grid-cols-2 gap-4 mb-4"> <div><label>Total Baseline Emissions</label><div id="baseline-display" class="mt-1 p-2 border border-gray-200 rounded bg-gray-50 text-center font-medium">10000 tCO2eq</div></div> <div><label for="baseline-year">Baseline Year</label><input type="number" id="baseline-year" value="2024" min="2015" max="2050" class="w-full shadow-sm"></div> </div> </div>
+                        <div class="mb-6 border-b border-slate-200 pb-5"> <h3 class="subsection-header flex justify-between items-center"> <span>Projections</span> <button class="edit-btn text-sm" onclick="openGrowthRateModal()">Edit Growth Rates</button> </h3> <p class="text-xs text-slate-500 mt-1">Linear growth rates (% of baseline) applied per period.</p> <div class="mt-2 p-2 border border-gray-200 rounded bg-gray-50 text-sm"> <span id="growth-display-p1">P1 (2024-2030): 2.0%</span><br> <span id="growth-display-p2">P2 (2031-2040): 1.5%</span><br> <span id="growth-display-p3">P3 (2041-2050): 1.0%</span> </div> </div>
+                        <div class="mb-6 border-b border-slate-200 pb-5"> <h3 class="subsection-header">Target</h3> <div class="flex items-center mb-2"> <input id="sbti-checkbox" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"> <label for="sbti-checkbox" class="ml-2 block text-sm text-gray-900">Align target with SBTi (1.5°C Pathway)?</label> </div> <p id="sbti-note" class="text-xs text-slate-500 mt-1 mb-3 hidden">Applies -42% by near-term target year (baseline+10yrs) and -90% by 2050 vs baseline year emissions.</p> <div><label for="target-reduction">Manual 2050 Target Reduction (%)</label><input type="number" id="target-reduction" value="50" min="0" max="100" class="w-full shadow-sm"></div> </div>
+                        <div class="flex-grow flex flex-col"> <div class="flex justify-between items-center mb-4"><h2 class="section-header mb-0 pb-0 border-b-0">Scenarios</h2><button id="add-scenario-btn" class="add-btn"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>Add Scenario</button></div> <div id="scenarios-list" class="flex-grow overflow-y-auto -mr-3 pr-3 space-y-4" style="max-height: calc(70vh - 450px);"></div> </div>
                     </div>
-                    <div class="lg:col-span-2 p-0 rounded-lg">
-                        <h2 class="section-header text-center mb-4">Emissions Trajectory (tCO2eq)</h2>
-                        <div class="chart-container"><canvas id="trajectoryChart"></canvas></div>
-                        <p class="text-xs text-slate-500 mt-4 text-center">*CAPEX and OPEX values are recorded but do not currently affect the emissions trajectory graph.</p>
-                    </div>
+                    <div class="lg:col-span-2 p-0 rounded-lg"> <h2 class="section-header text-center mb-4">Emissions Trajectory (tCO2eq)</h2> <div class="chart-container"><canvas id="trajectoryChart"></canvas></div> <p class="text-xs text-slate-500 mt-4 text-center">*CAPEX and OPEX values are recorded but do not currently affect the emissions trajectory graph.</p> </div>
                 </div>
             </div>
 
-            <div id="tab-content-macc" class="tab-content hidden">
-                 <h2 class="section-header text-center mb-1">Marginal Abatement Cost Curve (MACC)</h2>
-                 <p id="macc-scenario-info" class="text-sm text-center text-slate-600 mb-4">Analysis based on measures in the first scenario.</p>
-                 <div class="macc-chart-container"><canvas id="maccChart"></canvas></div>
-                 <p class="text-xs text-slate-500 mt-4 text-center">
-                     *X-axis shows measures sorted by MAC ($/tCO2eq). Bar height shows MAC.<br>
-                     *Calculations use **annualized** cost ((CAPEX/Lifecycle) + OPEX) and **annual** abatement (Baseline Scope*Reduction%), without discounting.
-                 </p>
-            </div>
+            <div id="tab-content-macc" class="tab-content hidden"> <h2 class="section-header text-center mb-1">Marginal Abatement Cost Curve (MACC)</h2> <p id="macc-scenario-info" class="text-sm text-center text-slate-600 mb-4">Analysis based on measures in the first scenario.</p> <div class="macc-chart-container"><canvas id="maccChart"></canvas></div> <p class="text-xs text-slate-500 mt-4 text-center"> *X-axis shows measures sorted by MAC ($/tCO2eq). Bar height shows MAC.<br> *Calculations use **annualized** cost ((CAPEX/Lifecycle) + OPEX) and **annual** abatement (Baseline Scope*Reduction%), without discounting. </p> </div>
         </div>
 
     </section>
@@ -310,7 +268,7 @@
         }
 
         // --- Calculation & Data ---
-        function calculateAllData() {
+        function calculateAllData() { /* ... (Scope logic updated) ... */
              if (!isToolInitialized) return;
              console.log("[calculateAllData] Starting calculation...");
              const totalBaselineEmissions = baselineData.scope1 + baselineData.scope2;
@@ -318,149 +276,69 @@
              const isSBTiAligned = sbtiCheckbox.checked;
              const manualTargetReduction = Math.max(0, Math.min(100, parseFloat(targetReductionInput.value))) / 100 || 0;
              const endYear = 2050;
-             const nearTermTargetYear = baselineYear + 10; // Calculate near-term target year
+             const nearTermTargetYear = baselineYear + 10;
              const years = []; const bauEmissions = []; const targetEmissions = [];
-             let sbtiNearTermLevel = null; // Store calculated levels for horizontal lines
+             let sbtiNearTermLevel = null;
              let sbtiLongTermLevel = null;
 
-             // ** Baseline Validation **
-             if (totalBaselineEmissions <= 0 || baselineYear > endYear || baselineYear < 2015) {
-                  console.error("[calculateAllData] Invalid baseline inputs (Emissions <= 0 or Year < 2015 or Year > 2050). Clearing charts.");
-                  updateTrajectoryChart(years, bauEmissions, targetEmissions, [], null, null); // Pass nulls for target levels
-                  updateMaccChart([]);
-                  return;
-             }
-             // ** SBTi Baseline Year Check **
+             if (totalBaselineEmissions <= 0 || baselineYear > endYear || baselineYear < 2015) { console.error("[calculateAllData] Invalid baseline inputs. Clearing charts."); updateTrajectoryChart(years, bauEmissions, targetEmissions, [], null, null); updateMaccChart([]); return; }
              let useSBTiLogic = isSBTiAligned;
-             if (isSBTiAligned && nearTermTargetYear > 2050) {
-                 console.warn(`[calculateAllData] SBTi alignment selected, but Near-Term Target Year (${nearTermTargetYear}) is beyond 2050. Reverting to manual target.`);
-                 sbtiCheckbox.checked = false;
-                 targetReductionInput.disabled = false;
-                 sbtiNote.classList.add('hidden');
-                 useSBTiLogic = false;
-             }
+             if (isSBTiAligned && nearTermTargetYear > 2050) { console.warn(`[calculateAllData] SBTi alignment selected, but Near-Term Target Year (${nearTermTargetYear}) is beyond 2050. Reverting to manual target.`); sbtiCheckbox.checked = false; targetReductionInput.disabled = false; sbtiNote.classList.add('hidden'); useSBTiLogic = false; }
 
-             // ** Calculate BAU using period-specific linear growth **
+             // Calculate BAU
              let currentBauEmissions = totalBaselineEmissions;
              for (let year = baselineYear; year <= endYear; year++) {
                  years.push(year);
-                 if (year === baselineYear) {
-                     bauEmissions.push(currentBauEmissions);
-                 } else {
-                     let applicableGrowthRate = 0;
-                     if (year <= 2030) { applicableGrowthRate = growthRates.p1 / 100; }
-                     else if (year <= 2040) { applicableGrowthRate = growthRates.p2 / 100; }
-                     else { applicableGrowthRate = growthRates.p3 / 100; }
-                     const annualIncrease = totalBaselineEmissions * applicableGrowthRate;
-                     currentBauEmissions += annualIncrease;
-                     bauEmissions.push(Math.max(0, currentBauEmissions));
-                 }
+                 if (year === baselineYear) { bauEmissions.push(currentBauEmissions); }
+                 else { let applicableGrowthRate = 0; if (year <= 2030) { applicableGrowthRate = growthRates.p1 / 100; } else if (year <= 2040) { applicableGrowthRate = growthRates.p2 / 100; } else { applicableGrowthRate = growthRates.p3 / 100; } const annualIncrease = totalBaselineEmissions * applicableGrowthRate; currentBauEmissions += annualIncrease; bauEmissions.push(Math.max(0, currentBauEmissions)); }
              }
 
-             // ** Calculate Target Path (Conditional based on SBTi) **
+             // Calculate Target Path
              if (useSBTiLogic) {
-                 sbtiNearTermLevel = totalBaselineEmissions * (1 - 0.42); // 58% of baseline
-                 sbtiLongTermLevel = totalBaselineEmissions * (1 - 0.90); // 10% of baseline
-                 console.log(`[calculateAllData] SBTi Targets: Near-Term Year=${nearTermTargetYear}, Level=${sbtiNearTermLevel}, 2050 Level=${sbtiLongTermLevel}`);
-
-                 for (let i = 0; i < years.length; i++) {
-                     const year = years[i];
-                     if (year === baselineYear) {
-                         targetEmissions.push(totalBaselineEmissions);
-                     } else if (year <= nearTermTargetYear) {
-                         // Linear interpolation: Base Year -> Near-Term Target Year
-                         const yearsToNearTerm = nearTermTargetYear - baselineYear;
-                         const progressRatio = yearsToNearTerm > 0 ? Math.max(0, Math.min(1, (year - baselineYear) / yearsToNearTerm)) : 1;
-                         const linearTarget = totalBaselineEmissions + (sbtiNearTermLevel - totalBaselineEmissions) * progressRatio;
-                         targetEmissions.push(Math.max(0, linearTarget));
-                     } else { // year > nearTermTargetYear
-                         // Linear interpolation: Near-Term Target Year -> 2050
-                         const yearsTo2050 = endYear - nearTermTargetYear;
-                         const nearTermIndex = years.indexOf(nearTermTargetYear);
-                         const startLevel = (nearTermIndex !== -1 && targetEmissions[nearTermIndex] !== undefined) ? targetEmissions[nearTermIndex] : sbtiNearTermLevel;
-                         const progressRatio = yearsTo2050 > 0 ? Math.max(0, Math.min(1, (year - nearTermTargetYear) / yearsTo2050)) : 1;
-                         const linearTarget = startLevel + (sbtiLongTermLevel - startLevel) * progressRatio;
-                         targetEmissions.push(Math.max(0, linearTarget));
-                     }
-                 }
-             } else { // Use manual target
-                 console.log(`[calculateAllData] Using Manual Target Reduction: ${manualTargetReduction * 100}%`);
-                 const targetEmission2050 = totalBaselineEmissions * (1 - manualTargetReduction);
-                 const finalTarget = Math.max(0, targetEmission2050);
-                 for (let i = 0; i < years.length; i++) {
-                     const year = years[i];
-                     if (year === baselineYear) {
-                         targetEmissions.push(totalBaselineEmissions);
-                     } else {
-                         const yearsTotal = endYear - baselineYear;
-                         const progressRatio = yearsTotal > 0 ? Math.max(0, Math.min(1,(year - baselineYear) / yearsTotal)) : 1;
-                         const linearTarget = totalBaselineEmissions + (finalTarget - totalBaselineEmissions) * progressRatio;
-                         targetEmissions.push(Math.max(0, linearTarget));
-                     }
-                 }
+                 sbtiNearTermLevel = totalBaselineEmissions * (1 - 0.42); sbtiLongTermLevel = totalBaselineEmissions * (1 - 0.90); console.log(`[calculateAllData] SBTi Targets: Near-Term Year=${nearTermTargetYear}, Level=${sbtiNearTermLevel}, 2050 Level=${sbtiLongTermLevel}`);
+                 for (let i = 0; i < years.length; i++) { const year = years[i]; if (year === baselineYear) { targetEmissions.push(totalBaselineEmissions); } else if (year <= nearTermTargetYear) { const yearsToNearTerm = nearTermTargetYear - baselineYear; const progressRatio = yearsToNearTerm > 0 ? Math.max(0, Math.min(1, (year - baselineYear) / yearsToNearTerm)) : 1; const linearTarget = totalBaselineEmissions + (sbtiNearTermLevel - totalBaselineEmissions) * progressRatio; targetEmissions.push(Math.max(0, linearTarget)); } else { const yearsTo2050 = endYear - nearTermTargetYear; const nearTermIndex = years.indexOf(nearTermTargetYear); const startLevel = (nearTermIndex !== -1 && targetEmissions[nearTermIndex] !== undefined) ? targetEmissions[nearTermIndex] : sbtiNearTermLevel; const progressRatio = yearsTo2050 > 0 ? Math.max(0, Math.min(1, (year - nearTermTargetYear) / yearsTo2050)) : 1; const linearTarget = startLevel + (sbtiLongTermLevel - startLevel) * progressRatio; targetEmissions.push(Math.max(0, linearTarget)); } }
+             } else {
+                 console.log(`[calculateAllData] Using Manual Target Reduction: ${manualTargetReduction * 100}%`); const targetEmission2050 = totalBaselineEmissions * (1 - manualTargetReduction); const finalTarget = Math.max(0, targetEmission2050);
+                 for (let i = 0; i < years.length; i++) { const year = years[i]; if (year === baselineYear) { targetEmissions.push(totalBaselineEmissions); } else { const yearsTotal = endYear - baselineYear; const progressRatio = yearsTotal > 0 ? Math.max(0, Math.min(1,(year - baselineYear) / yearsTotal)) : 1; const linearTarget = totalBaselineEmissions + (finalTarget - totalBaselineEmissions) * progressRatio; targetEmissions.push(Math.max(0, linearTarget)); } }
              }
 
-             // ** Calculate Scenarios using scenariosDataStore & Scope Logic **
+             // Calculate Scenarios using Scope Logic
              const scenariosData = getAllScenariosData();
              const scenarioTrajectories = [];
              scenariosData.forEach(scenario => {
-                 const scenarioEmissions = [];
-                 const measures = scenario.measures;
+                 const scenarioEmissions = []; const measures = scenario.measures;
                  for (let i = 0; i < years.length; i++) {
-                     const currentYear = years[i];
-                     const currentBau = bauEmissions[i];
-                     let totalYearlyReduction = 0; // Start with zero reduction for the year
-
+                     const currentYear = years[i]; const currentBau = bauEmissions[i]; let totalYearlyReduction = 0;
                      measures.forEach(measure => {
                          const endMeasureYear = measure.startYear + measure.lifecycle - 1;
-                         // Check if measure is active in the current year
                          if (currentYear >= measure.startYear && currentYear <= endMeasureYear) {
-                             const reductionPercent = measure.reduction / 100;
-                             let absoluteReduction = 0;
-                             // Apply reduction to the correct baseline scope
-                             if (measure.scope === 'Scope 1') {
-                                 absoluteReduction = (baselineData.scope1 || 0) * reductionPercent;
-                             } else if (measure.scope === 'Scope 2') {
-                                 absoluteReduction = (baselineData.scope2 || 0) * reductionPercent;
-                             }
-                             // Add this measure's absolute reduction to the yearly total
+                             const reductionPercent = measure.reduction / 100; let absoluteReduction = 0;
+                             if (measure.scope === 'Scope 1') { absoluteReduction = (baselineData.scope1 || 0) * reductionPercent; }
+                             else if (measure.scope === 'Scope 2') { absoluteReduction = (baselineData.scope2 || 0) * reductionPercent; }
                              totalYearlyReduction += absoluteReduction;
                          }
                      });
-                     // Subtract the total absolute reduction from the BAU for that year
                      scenarioEmissions.push(Math.max(0, currentBau - totalYearlyReduction));
                  }
                  scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioEmissions });
              });
              updateTrajectoryChart(years, bauEmissions, targetEmissions, scenarioTrajectories, useSBTiLogic ? sbtiNearTermLevel : null, useSBTiLogic ? sbtiLongTermLevel : null);
 
-             // ** Calculate MACC Data (Using Annual Abatement & Scope Logic) **
+             // Calculate MACC Data
              let processedMaccData = [];
              if (scenariosDataStore.length > 0 && scenariosDataStore[0].measures.length > 0) {
-                  const firstScenario = scenariosDataStore[0];
-                  maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
+                  const firstScenario = scenariosDataStore[0]; maccScenarioInfo.textContent = `Analysis based on measures in scenario: "${firstScenario.name}"`;
                   processedMaccData = firstScenario.measures.map(measure => {
-                      const lifecycle = measure.lifecycle;
-                      const reductionPercent = measure.reduction / 100;
-                      let relevantBaseline = 0;
-                      // ** Use correct baseline scope for abatement calculation **
-                      if (measure.scope === 'Scope 1') {
-                          relevantBaseline = baselineData.scope1 || 0;
-                      } else if (measure.scope === 'Scope 2') {
-                          relevantBaseline = baselineData.scope2 || 0;
-                      }
-                      const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9; // Avoid 0 baseline
-                      const annualAbatement = validBaseline * reductionPercent;
-                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
-                      const annualizedCost = annualizedCapex + measure.opex;
+                      const lifecycle = measure.lifecycle; const reductionPercent = measure.reduction / 100; let relevantBaseline = 0;
+                      if (measure.scope === 'Scope 1') { relevantBaseline = baselineData.scope1 || 0; } else if (measure.scope === 'Scope 2') { relevantBaseline = baselineData.scope2 || 0; }
+                      const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9; const annualAbatement = validBaseline * reductionPercent;
+                      const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex; const annualizedCost = annualizedCapex + measure.opex;
                       const mac = (annualAbatement > 1e-9) ? annualizedCost / annualAbatement : Infinity;
                       if (annualAbatement <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
                       return { ...measure, annualAbatement, annualizedCost, mac, scope: measure.scope };
                   }).filter(m => m !== null);
                   processedMaccData.sort((a, b) => a.mac - b.mac);
-             } else {
-                  maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis.";
-             }
+             } else { maccScenarioInfo.textContent = "Add measures to the first scenario to see MACC analysis."; }
              updateMaccChart(processedMaccData);
         }
 
@@ -508,18 +386,6 @@
         // --- Event Listeners & Debounce ---
         function debounce(func, wait) { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
         const debouncedCalculateAllData = debounce(calculateAllData, 350);
-        baselineYearInput.addEventListener('input', () => {
-             updateGrowthRateDisplay();
-             if (isToolInitialized) debouncedCalculateAllData();
-        });
-        targetReductionInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData());
-        sbtiCheckbox.addEventListener('change', () => {
-            targetReductionInput.disabled = sbtiCheckbox.checked;
-            sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
-            if (isToolInitialized) debouncedCalculateAllData();
-        });
-
-
         // --- Scenario & Measure Management ---
         function addScenario() { /* ... (unchanged) ... */
             const scenarioId = `scenario-${Date.now()}`; const scenarioCount = scenariosDataStore.length + 1; const defaultScenarioName = `Scenario ${scenarioCount}`; const color = scenarioColors[scenarioColorIndex % scenarioColors.length]; scenarioColorIndex++;
@@ -568,31 +434,57 @@
 
         // --- Page Navigation Logic ---
         function showPage(pageId) {
+            console.log(`[showPage] Attempting to show: ${pageId}`);
             homeSection.classList.add('hidden');
             toolSection.classList.add('hidden');
             const pageToShow = document.getElementById(pageId);
             if (pageToShow) {
                 pageToShow.classList.remove('hidden');
+                console.log(`[showPage] Successfully shown: ${pageId}`);
+            } else {
+                console.error(`[showPage] Element with ID ${pageId} not found!`);
             }
              window.scrollTo(0, 0);
         }
 
         // --- Home Page Interaction ---
-        tryToolBtn.addEventListener('click', () => {
-            showPage('tool-section');
-            if (!isToolInitialized) {
-                isToolInitialized = true;
-                saveBaselineModal();
-                updateGrowthRateDisplay();
-                if (scenariosDataStore.length === 0) { addScenario(); }
-                else { scenariosListContainer.innerHTML = ''; scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); }); calculateAllData(); }
-                addScenarioBtn.addEventListener('click', addScenario);
+        // ** Ensure event listener is attached correctly **
+        function setupHomeButtonListener() {
+            if (tryToolBtn) {
+                 tryToolBtn.addEventListener('click', () => {
+                    console.log("[tryToolBtn] Clicked!");
+                    showPage('tool-section');
+                    if (!isToolInitialized) {
+                        console.log("[tryToolBtn] Initializing tool...");
+                        isToolInitialized = true;
+                        saveBaselineModal(); // Initialize baseline display
+                        updateGrowthRateDisplay(); // Initialize growth display
+                        if (scenariosDataStore.length === 0) {
+                            addScenario(); // Add default scenario and trigger calculation
+                        } else {
+                            // If data was pre-loaded, render scenarios and calculate
+                            scenariosListContainer.innerHTML = '';
+                            scenariosDataStore.forEach(sc => { scenariosListContainer.appendChild(createScenarioBlockElement(sc)); });
+                            calculateAllData();
+                        }
+                        // Ensure this listener is added *after* the button exists in the DOM
+                        if(addScenarioBtn) {
+                            addScenarioBtn.addEventListener('click', addScenario);
+                        } else {
+                             console.error("Add Scenario button not found during initialization!");
+                        }
+                         console.log("[tryToolBtn] Initialization complete.");
+                    } else {
+                         console.log("[tryToolBtn] Tool already initialized, recalculating data...");
+                         calculateAllData(); // Recalculate if already initialized
+                    }
+                });
+                console.log("Event listener attached to tryToolBtn.");
             } else {
-                // If tool was already initialized, just ensure data is calculated
-                // (e.g., if user went back home and then clicked try again)
-                 calculateAllData();
+                console.error("tryToolBtn not found!");
             }
-        });
+        }
+
 
          // --- Background Animation ---
          homeSection.addEventListener('mousemove', (e) => {
@@ -613,7 +505,27 @@
             updateGrowthRateDisplay();
             targetReductionInput.disabled = sbtiCheckbox.checked;
             sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
-        });
+
+            // ** Attach the home button listener here **
+            setupHomeButtonListener();
+
+            // Attach other listeners that need the DOM ready
+             baselineYearInput.addEventListener('input', () => {
+                 updateGrowthRateDisplay();
+                 if (isToolInitialized) debouncedCalculateAllData();
+             });
+             targetReductionInput.addEventListener('input', () => isToolInitialized && debouncedCalculateAllData());
+             sbtiCheckbox.addEventListener('change', () => {
+                 targetReductionInput.disabled = sbtiCheckbox.checked;
+                 sbtiNote.classList.toggle('hidden', !sbtiCheckbox.checked);
+                 if (isToolInitialized) debouncedCalculateAllData();
+             });
+             // Note: addScenarioBtn listener is added during initializeTool if tool is not initialized on load
+             if (isToolInitialized && addScenarioBtn) {
+                 addScenarioBtn.addEventListener('click', addScenario);
+             }
+
+        }); // End DOMContentLoaded
 
     </script>
 
