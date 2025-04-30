@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossorigin=""/>
@@ -20,7 +19,8 @@
 </head>
 <body>
 
-    <section id="home-section" class="active"> {/* Assume 'active' controls visibility */}
+    <section id="home-section" class="active">
+        {/* The stray comment that was here previously has been REMOVED */}
         <h1 class="home-title">Kömir Zero</h1>
         <p class="home-subtitle">Model your emissions reduction scenarios and analyze costs with MACC analysis.</p>
         <button id="try-tool-btn" class="try-tool-btn">TRY the TRAJECTORY TOOL</button>
@@ -46,9 +46,7 @@
                     <button id="tab-btn-dashboard" class="tab-button active" onclick="switchTab('dashboard')">Trajectory Dashboard</button>
                     <button id="tab-btn-macc" class="tab-button" onclick="switchTab('macc')">MACC Analysis</button>
                     <button id="tab-btn-wedges" class="tab-button" onclick="switchTab('wedges')">Abatement Wedges</button>
-                    {/* ==================== NEW: Tab Button ==================== */}
                     <button id="tab-btn-risks" class="tab-button" onclick="switchTab('risks')">Physical Climate Risks</button>
-                    {/* ========================================================= */}
                 </nav>
             </div>
 
@@ -133,12 +131,15 @@
                  <p class="text-xs text-slate-500 mt-4 text-center">*Each colored area represents the annual abatement (tCO2eq/yr) contributed by a specific measure.</p>
             </div>
 
-             {/* ==================== NEW: Tab Content: Physical Climate Risks ==================== */}
+             {/* Tab Content: Physical Climate Risks */}
             <div id="tab-content-risks" class="tab-content hidden">
                 <h2 class="section-header text-center mb-4">Physical Climate Risks Map</h2>
+                {/* Grid container for layout */}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
                     {/* Input Column */}
-                    <div class="md:col-span-1 bg-white p-4 rounded-lg border border-slate-200 flex flex-col space-y-6 h-fit"> {/* `h-fit` helps column size */}
+                    <div class="md:col-span-1 bg-white p-4 rounded-lg border border-slate-200 flex flex-col space-y-6 h-fit">
+                        {/* Section 1: Site Details */}
                         <div>
                             <h3 class="subsection-header border-b pb-2 mb-3">Site Details</h3>
                             {/* Site Input Form */}
@@ -177,7 +178,7 @@
                                 <p class="text-slate-500">No sites added yet.</p>
                             </div>
                         </div>
-                        {/* Climate Scenario Input Placeholder */}
+                        {/* Section 2: Climate Scenario Placeholder */}
                         <div>
                             <h3 class="subsection-header border-b pb-2 mb-3">Climate Scenario (Example)</h3>
                             <label for="rcp-scenario" class="text-sm">RCP Scenario:</label>
@@ -187,9 +188,7 @@
                             </select>
                              <p class="text-xs text-slate-500 mt-2"> (Note: Scenario selection logic and risk data integration require external data sources not included in Leaflet.)</p>
                         </div>
-                    </div>
-
-                    {/* Map Column */}
+                    </div> {/* Map Column */}
                     <div class="md:col-span-2 p-0 rounded-lg flex flex-col">
                          {/* Map Container Div */}
                          <div id="risk-map-container" class="w-full h-[60vh] md:h-[75vh] rounded border border-slate-300 mb-3 bg-slate-100">
@@ -204,10 +203,8 @@
                             <span><i class="legend-icon heat"></i> Extreme Heat</span>
                             <span><i class="legend-icon wildfire"></i> Wildfire</span>
                          </div>
-                    </div>
-                </div>
-            </div>
-            {/* ==================================================================================== */}
+                    </div> </div> </div>
+            {/* End Physical Climate Risks Tab Content */}
 
         </div> </section> <div id="baseline-modal" class="modal-overlay"> <div class="modal-content relative"> <button class="modal-close-btn" onclick="closeBaselineModal()">&times;</button> <h3 class="modal-header">Edit Baseline Emissions</h3> <div class="space-y-4"> <div><label for="modal-baseline-scope1" class="block text-sm font-medium text-gray-700 mb-1">Scope 1 Emissions (tCO2eq)</label><input type="number" id="modal-baseline-scope1" value="6000" min="0" class="w-full shadow-sm"></div> <div><label for="modal-baseline-scope2" class="block text-sm font-medium text-gray-700 mb-1">Scope 2 Emissions (tCO2eq)</label><input type="number" id="modal-baseline-scope2" value="4000" min="0" class="w-full shadow-sm"></div> </div> <div class="modal-footer"> <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="closeBaselineModal()">Cancel</button> <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveBaselineModal()">Save Baseline</button> </div> </div> </div>
     <div id="growth-rate-modal" class="modal-overlay"> <div class="modal-content relative"> <button class="modal-close-btn" onclick="closeGrowthRateModal()">&times;</button> <h3 class="modal-header">Edit Growth Rates (% of Baseline / Year)</h3> <div class="space-y-4"> <div> <label id="modal-growth-p1-label" for="modal-growth-p1" class="block text-sm font-medium text-gray-700 mb-1">Period 1 (2024 - 2030)</label> <input type="number" id="modal-growth-p1" value="2.0" step="0.1" class="w-full shadow-sm"> </div> <div> <label for="modal-growth-p2" class="block text-sm font-medium text-gray-700 mb-1">Period 2 (2031 - 2040)</label> <input type="number" id="modal-growth-p2" value="1.5" step="0.1" class="w-full shadow-sm"> </div> <div> <label for="modal-growth-p3" class="block text-sm font-medium text-gray-700 mb-1">Period 3 (2041 - 2050)</label> <input type="number" id="modal-growth-p3" value="1.0" step="0.1" class="w-full shadow-sm"> </div> </div> <div class="modal-footer"> <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="closeGrowthRateModal()">Cancel</button> <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveGrowthRateModal()">Save Rates</button> </div> </div> </div>
