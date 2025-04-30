@@ -1069,48 +1069,33 @@ function showPage(pageIdToShow) {
         return;
     }
 
-    // Start fading out the current page
-    pageToHide.classList.remove('active'); // Removes opacity: 1 / visibility: visible
-    pageToHide.classList.add('fade-out'); // Optional: Add specific fade-out class if you have one
+    // Ensure the page to hide is marked as inactive (for animations/transitions)
+    pageToHide.classList.remove('active'); // Controls opacity/visibility via CSS
+    pageToHide.classList.add('fade-out'); // Add fade-out class if using one
 
-    // Use setTimeout matching your CSS transition duration
+    // Use setTimeout to allow fade-out transition to complete
     setTimeout(() => {
-        // --- After fade-out transition ---
-        pageToHide.classList.add('hidden');      // Set display: none on the old page
-        pageToHide.classList.remove('fade-out'); // Clean up fade-out class
+        pageToHide.classList.add('hidden'); // Use display:none after transition
+        pageToHide.classList.remove('fade-out'); // Clean up class
 
-        // Make the new page visible in the layout flow (remove display: none)
-        pageToShow.classList.remove('hidden');
-        // Ensure opacity is reset if needed before fade-in
-        pageToShow.classList.remove('opacity-0');
+        // Prepare page to show
+        pageToShow.classList.remove('hidden'); // Make it part of the layout flow
+        pageToShow.classList.remove('opacity-0'); // Ensure opacity is ready for transition
 
-        // *** TRY SCROLLING HERE ***
-        // If navigating to the home section, attempt to scroll window to top immediately
-        // after its display is no longer 'none'
-        if (pageIdToShow === 'home-section') {
-            console.log("[showPage] Scrolling window to top for home-section (before rAF).");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            // As a fallback test, you could try without smooth scrolling:
-            // window.scrollTo(0, 0);
-        }
-
-        // Use requestAnimationFrame to apply the 'active' class for the fade-in transition
-        // This ensures the browser renders the display change before the opacity transition starts
+        // Use rAF to ensure the DOM is updated before starting the fade-in transition
         requestAnimationFrame(() => {
             pageToShow.classList.add('active'); // Add class to trigger fade-in (opacity: 1)
-
-            // Scroll the tool section into view ONLY if navigating TO the tool section
-            // (This part was already correct)
+            // Scroll behavior
             if (pageIdToShow === 'tool-section') {
-                console.log("[showPage] Scrolling tool-section into view.");
-                pageToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                 // Scroll smoothly to the top of the tool section
+                 pageToShow.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                 // Scroll smoothly to the top of the home page
+                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
-        console.log(`[showPage] Displaying: ${pageIdToShow}`);
-
-    }, 500); // Match the CSS transition duration (e.g., 0.5s)
-}
+        console.log(`[showPage] Now showing: ${pageIdToShow}`);
 
     }, 500); // Match the CSS transition duration (0.5s)
 }
