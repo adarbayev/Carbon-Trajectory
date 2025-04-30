@@ -1,0 +1,3 @@
+/* Ensures smooth scrolling for anchor links if needed */
+html { scroll-behavior: smooth; }
+/* rest of CSS identical to provided */
