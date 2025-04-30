@@ -504,7 +504,7 @@ function calculateAllData() {
             }
         }
 
-        // *** Updated MACC Chart Update Function (Reverted to Categorical) ***
+        // *** MACC Chart Update Function (Reverted to Categorical) ***
         function updateMaccChart(processedMaccData, selectedYear) {
             if (!maccCtx) { console.error("MACC Chart context (maccCtx) not found!"); return; }
             if (maccChartInstance) { maccChartInstance.destroy(); }
@@ -714,16 +714,16 @@ function calculateAllData() {
         }
 
 
-        function addMeasureInModal() { /* ... (unchanged) ... */
+        function addMeasureInModal() {
             if (!currentEditingScenarioId) return;
             const newMeasureBlock = createMeasureBlockElement();
             modalMeasuresList.appendChild(newMeasureBlock);
         }
         modalAddMeasureBtn.addEventListener('click', addMeasureInModal);
-        function removeMeasureInModal(measureId) { /* ... (unchanged) ... */
+        function removeMeasureInModal(measureId) {
             const measureBlock = document.getElementById(measureId); if (measureBlock) { measureBlock.remove(); console.log(`Removed measure block ${measureId} from modal DOM.`); } else { console.warn(`Could not find measure block with ID ${measureId} to remove from modal.`); }
         }
-        function toggleLifecycleInput(selectElement, measureId) { /* ... (unchanged) ... */
+        function toggleLifecycleInput(selectElement, measureId) {
             const measureBlock = document.getElementById(measureId); if (!measureBlock) return; const lifecycleContainer = measureBlock.querySelector('.lifecycle-input-container'); if (selectElement.value === 'yes') { lifecycleContainer.classList.add('hidden'); } else { lifecycleContainer.classList.remove('hidden'); }
         }
         // ** New function to toggle ramp-up input visibility **
