@@ -421,7 +421,9 @@ function calculateAllData() {
 
               if (absoluteAnnualAbatementForSelectedYear <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
               // Add the year-specific abatement to the object for tooltip use
-              return { ...measure, annualAbatementForSelectedYear, annualizedCost, mac };
+              - return { ...measure, annualAbatementForSelectedYear, annualizedCost, mac };
++ return { ...measure, annualAbatementForSelectedYear: absoluteAnnualAbatementForSelectedYear, annualizedCost, mac };
+
           }).filter(m => m !== null);
           processedMaccData.sort((a, b) => a.mac - b.mac);
      } else {
@@ -930,6 +932,3 @@ function calculateAllData() {
             homeSection.style.setProperty('--x', `${xPercent}%`);
             homeSection.style.setProperty('--y', `${yPercent}%`);
         });
-
-
-    </script>
