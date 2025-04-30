@@ -888,8 +888,9 @@ function calculateAllData() {
                      console.log("[tryToolBtn] Clicked!");
                      showPage('tool-section'); // Switch page using fade
                      // Initialize the tool *after* the page is shown and fade is complete
+                     // Use requestAnimationFrame to ensure the DOM is ready before initializing
                      setTimeout(() => {
-                        initializeTool();
+                        requestAnimationFrame(initializeTool);
                      }, 500); // Match the fade transition duration
 
                  });
