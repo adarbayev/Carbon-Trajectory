@@ -1,4 +1,4 @@
-* Ensures smooth scrolling for anchor links if needed */
+/* Ensures smooth scrolling for anchor links if needed */
 html { scroll-behavior: smooth; }
 
 /* Basic body styles */
