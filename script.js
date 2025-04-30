@@ -189,7 +189,7 @@ const baseWedgeChartConfig = {
 };
 
 // --- Modal Management ---
-// *** Assign functions to window object ***
+// *** Assign functions to window object to make them globally accessible ***
 window.openBaselineModal = function() {
     modalBaselineScope1.value = baselineData.scope1;
     modalBaselineScope2.value = baselineData.scope2;
@@ -433,7 +433,6 @@ function calculateAllData() {
 
 
         function getAllScenariosData() {
-            // Reads scenario data directly from the scenariosDataStore
             console.log("[getAllScenariosData] Reading from scenariosDataStore:", JSON.stringify(scenariosDataStore));
             return JSON.parse(JSON.stringify(scenariosDataStore)); // Return a deep copy
         }
