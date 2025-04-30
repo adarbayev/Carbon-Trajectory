@@ -120,7 +120,7 @@ const baseMaccChartConfig = {
                         const measures = tooltipItems[0].chart.data.datasets[0].processedMeasures;
                         const index = tooltipItems[0].dataIndex;
                         const measure = measures && measures[index] ? measures[index] : null;
-                        if (measure) {
+                        if (measure && maccYearSelect) { // Check if maccYearSelect exists
                             // Show annual abatement for the selected year in the tooltip
                             return [
                                 `Annual Abatement (${maccYearSelect.value}): ${measure.annualAbatementForSelectedYear.toFixed(0)} tCO2eq/yr`,
