@@ -405,23 +405,33 @@ function calculateAllData() {
               const validBaseline = relevantBaseline > 1e-9 ? relevantBaseline : 1e-9;
 
               // Calculate abatement *for the selected year*
-              let absoluteAnnualAbatementForSelectedYear = 0;
+              // ****** FIX START ******
+              // Rename this variable declaration
+              let annualAbatementForSelectedYear = 0;
+              // ****** FIX END ******
               const endMeasureYear = measure.startYear + measure.lifecycle - 1;
               if (selectedMaccYear >= measure.startYear && selectedMaccYear <= endMeasureYear) {
                     const yrsIn = selectedMaccYear - measure.startYear + 1;
                     const rampYears = Math.max(1, measure.rampYears || 1);
                     const rampFactor = Math.min(1, yrsIn / rampYears);
                     const effectiveReductionPercent = reductionPercent * rampFactor;
-                    absoluteAnnualAbatementForSelectedYear = validBaseline * effectiveReductionPercent;
+                    // ****** FIX START ******
+                    // Use the renamed variable here
+                    annualAbatementForSelectedYear = validBaseline * effectiveReductionPercent;
+                    // ****** FIX END ******
               }
 
               const annualizedCapex = (lifecycle > 0) ? measure.capex / lifecycle : measure.capex;
               const annualizedCost = annualizedCapex + measure.opex;
-              const mac = (absoluteAnnualAbatementForSelectedYear > 1e-9) ? annualizedCost / absoluteAnnualAbatementForSelectedYear : Infinity;
+              // ****** FIX START ******
+              // Use the renamed variable here too
+              const mac = (annualAbatementForSelectedYear > 1e-9) ? annualizedCost / annualAbatementForSelectedYear : Infinity;
 
-              if (absoluteAnnualAbatementForSelectedYear <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
-              // Add the year-specific abatement to the object for tooltip use
+              // And here
+              if (annualAbatementForSelectedYear <= 1e-9 || !isFinite(mac) || !isFinite(annualizedCost)) return null;
+              // Now this line is correct because the variable exists
               return { ...measure, annualAbatementForSelectedYear, annualizedCost, mac };
+              // ****** FIX END ******
           }).filter(m => m !== null);
           processedMaccData.sort((a, b) => a.mac - b.mac);
      } else {
@@ -429,7 +439,7 @@ function calculateAllData() {
      }
      updateMaccChart(processedMaccData, selectedMaccYear); // Pass selected year
      updateWedgeChart(years, wedgeDatasets);
-}
+} // End of calculateAllData (potentially)
 
 
         function getAllScenariosData() {
