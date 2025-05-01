@@ -51,6 +51,21 @@ let trajectoryChartInstance; let maccChartInstance; let wedgeChartInstance;
 let isToolInitialized = false;
 const scenarioColors = ['#14b8a6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#d946ef', '#84cc16'];
 // Using wedgeColors also for MACC steps for consistency, can be changed
+const wedgeColors = [
+  "#f87171", // Red
+  "#fbbf24", // Amber
+  "#34d399", // Green
+  "#60a5fa", // Blue
+  "#a78bfa", // Purple
+  "#f472b6", // Pink
+  "#38bdf8", // Sky
+  "#facc15", // Yellow
+  "#fb7185", // Rose
+  "#4ade80", // Emerald
+  "#c084fc", // Violet
+  "#fcd34d", // Gold
+  "#818cf8", // Indigo
+  "#f9a8d4", // Fuchsia
 const wedgeColors = [ '#a8ddb5', '#7bccc4', '#4eb3d3', '#2b8cbe', '#0868ac', '#084081', '#fec44f', '#fe9929', '#d95f0e', '#993404', '#bcbddc', '#efedf5', '#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']; // Added more colors
 let scenarioColorIndex = 0; let activeTab = 'dashboard';
 let scenariosDataStore = [];
