@@ -521,3 +521,17 @@ label {
 .bounce-once {
     animation: bounce-once 0.7s cubic-bezier(.68,-0.55,.27,1.55);
 }
+
+.export-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.export-btn:hover {
+  background: #e0e7ef;
+}
+.export-menu .hidden { display: none; }
+.export-menu .block { display: block; }
