@@ -536,19 +536,22 @@ label {
 .export-menu .hidden { display: none; }
 .export-menu .block { display: block; }
 
-/* ---------- Hero Net-Zero Path ---------- */
+/* ---------- Hero Net-Zero Path v2 ---------- */
 #netzero-path{
-  position:absolute;           /* anchor inside hero */
-  top:45%; left:50%;
-  transform:translate(-50%,-50%);
-  width:80vw; max-width:640px; /* responsive */
+  position:absolute;
+  top: 55%;                 /* sits under headline text */
+  left:50%;
+  transform:translateX(-50%);
+  width: 90vw;
+  max-width: 760px;
   height:auto;
   pointer-events:none;
-  z-index:0;                   /* behind the copy */
+  z-index:0;                /* copy sits above (z-index:1 in .home-title) */
 }
 #netzero-line{
-  stroke:#ef4444;              /* start red */
+  stroke-dasharray: var(--dash);    /* filled by JS */
+  stroke-dashoffset: var(--dash);   /* filled by JS */
 }
 @media (prefers-reduced-motion: reduce){
-  #netzero-line{ stroke:#10b981; }   /* just show final state */
+  #netzero-line{ stroke-dashoffset:0; }
 }
