@@ -388,10 +388,26 @@ function downloadChartAsPNG(chartInstance, filename) {
 }
 
 function downloadChartAsJPEG(chartInstance, filename) {
+    // Create a temporary canvas to draw with white background
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = chartInstance.canvas.width;
+    tempCanvas.height = chartInstance.canvas.height;
+    
+    // Get context and fill with white background
+    const ctx = tempCanvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // Draw the chart on top of the white background
+    ctx.drawImage(chartInstance.canvas, 0, 0);
+    
+    // Create and click download link
     const link = document.createElement('a');
-    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.href = tempCanvas.toDataURL('image/jpeg', 1.0);
     link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 }
 
 function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
