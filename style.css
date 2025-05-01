@@ -535,20 +535,3 @@ label {
 }
 .export-menu .hidden { display: none; }
 .export-menu .block { display: block; }
-
-/* ---------- Hero Net-Zero Path ---------- */
-#netzero-path{
-  position:absolute;           /* anchor inside hero */
-  top:45%; left:50%;
-  transform:translate(-50%,-50%);
-  width:80vw; max-width:640px; /* responsive */
-  height:auto;
-  pointer-events:none;
-  z-index:0;                   /* behind the copy */
-}
-#netzero-line{
-  stroke:#ef4444;              /* start red */
-}
-@media (prefers-reduced-motion: reduce){
-  #netzero-line{ stroke:#10b981; }   /* just show final state */
-}
