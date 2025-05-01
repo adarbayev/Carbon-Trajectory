@@ -66,7 +66,11 @@ const wedgeColors = [
   "#fcd34d", // Gold
   "#818cf8", // Indigo
   "#f9a8d4", // Fuchsia
-const wedgeColors = [ '#a8ddb5', '#7bccc4', '#4eb3d3', '#2b8cbe', '#0868ac', '#084081', '#fec44f', '#fe9929', '#d95f0e', '#993404', '#bcbddc', '#efedf5', '#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']; // Added more colors
+  "#5eead4", // Teal
+  "#fca5a5", // Light Red
+  "#fde68a", // Light Yellow
+  "#bbf7d0", // Light Green
+];
 let scenarioColorIndex = 0; let activeTab = 'dashboard';
 let scenariosDataStore = [];
 let currentEditingScenarioId = null;
@@ -541,7 +545,7 @@ function calculateAllData() {
              wedgeDatasets.push({
                  label: measure.name,
                  data: new Array(years.length).fill(0), // Initialize data array with zeros
-                 backgroundColor: `${wedgeColors[index % wedgeColors.length]}B3`, // Use wedge colors with transparency
+                 backgroundColor: `${wedgeColors[index % wedgeColors.length]}80`, // 50% transparent
                  borderColor: wedgeColors[index % wedgeColors.length],
                  borderWidth: 0.5,
                  pointRadius: 0, // No points on area chart lines
@@ -1363,6 +1367,9 @@ function initializeTool() {
      isToolInitialized = true; // Mark tool as initialized
      // calculateAllData(); // Initial calculation is triggered by addScenario or directly if scenarios exist
      console.log("Tool initialization complete.");
+
+     // ADD THIS LINE to always update the charts after initialization
+     calculateAllData();
 }
 
 // --- MACC Year Selector Population ---
