@@ -415,6 +415,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
     menu.onclick = function(e) { e.stopPropagation(); };
 
     pngBtn.onclick = function() {
+        console.log('PNG export clicked');
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
@@ -1582,6 +1583,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
     menu.onclick = function(e) { e.stopPropagation(); };
 
     pngBtn.onclick = function() {
+        console.log('PNG export clicked');
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
@@ -1597,12 +1599,50 @@ setupExportMenu('export-trajectory-menu-btn', 'export-trajectory-menu', 'traject
 setupExportMenu('export-macc-menu-btn', 'export-macc-menu', 'maccChartInstance', 'macc-analysis');
 setupExportMenu('export-wedge-menu-btn', 'export-wedge-menu', 'wedgeChartInstance', 'abatement-wedges');
 
-// MACC
-document.getElementById('export-macc-jpeg').onclick = function() {
-    if (maccChartInstance) downloadChartAsJPEG(maccChartInstance, 'macc-analysis.jpg');
-};
+function downloadChartAsPNG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/png', 1.0);
+    link.download = filename;
+    link.click();
+}
 
-// Wedges
-document.getElementById('export-wedge-jpeg').onclick = function() {
-    if (wedgeChartInstance) downloadChartAsJPEG(wedgeChartInstance, 'abatement-wedges.jpg');
-};
+function downloadChartAsJPEG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.download = filename;
+    link.click();
+}
+
+function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
+    const btn = document.getElementById(menuBtnId);
+    const menu = document.getElementById(menuId);
+    const pngBtn = document.getElementById(menuId.replace('menu', 'png'));
+    const jpegBtn = document.getElementById(menuId.replace('menu', 'jpeg'));
+
+    if (!btn || !menu || !pngBtn || !jpegBtn) {
+        console.error('Export menu or buttons not found for', menuId);
+        return;
+    }
+
+    btn.onclick = function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+    };
+
+    document.addEventListener('click', function() {
+        menu.classList.add('hidden');
+    });
+
+    menu.onclick = function(e) { e.stopPropagation(); };
+
+    pngBtn.onclick = function() {
+        console.log('PNG export clicked');
+        if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
+        menu.classList.add('hidden');
+    };
+
+    jpegBtn.onclick = function() {
+        if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
+        menu.classList.add('hidden');
+    };
+}
