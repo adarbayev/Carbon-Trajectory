@@ -1266,6 +1266,13 @@ function handleAddSite() {
     if(nameInput) nameInput.focus(); // Set focus back to the name input
 
     console.log("Added site:", site);
+
+    // --- Animate marker with a bounce effect ---
+    const markerIcon = marker._icon;
+    if (markerIcon) {
+        markerIcon.classList.add('bounce-once');
+        setTimeout(() => markerIcon.classList.remove('bounce-once'), 700); // Duration matches CSS
+    }
 }
 
 function updateSiteListDisplay() {
