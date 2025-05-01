@@ -379,23 +379,32 @@ window.saveAndCloseMeasuresModal = function() {
  }
 
 function downloadChartAsJPEG(chartInstance, filename) {
+    // JPEG does not support transparency, so background will be white
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
     link.download = filename;
     link.click();
 }
 
-function showSVGExportMessage() {
-    alert('SVG export is not supported for Chart.js canvas charts in this version. For true SVG, use a plugin like chartjs-plugin-export-to-svg.');
+function downloadChartAsPNG(chartInstance, filename) {
+    // PNG is transparent by default
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/png', 1.0);
+    link.download = filename;
+    link.click();
 }
 
-function setupExportMenu(menuBtnId, menuId, chartInstanceName, chartCanvasId, baseFilename) {
+function showSVGExportMessage() {
+    alert('SVG export is not supported for Chart.js canvas charts. Use JPEG/PNG instead. For true SVG, use a plugin like chartjs-plugin-export-to-svg.');
+}
+
+function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
     const btn = document.getElementById(menuBtnId);
     const menu = document.getElementById(menuId);
+    const pngBtn = document.getElementById(menuId.replace('menu', 'png'));
     const jpegBtn = document.getElementById(menuId.replace('menu', 'jpeg'));
-    const svgBtn = document.getElementById(menuId.replace('menu', 'svg'));
 
-    if (!btn || !menu || !jpegBtn || !svgBtn) {
+    if (!btn || !menu || !pngBtn || !jpegBtn) {
         console.error('Export menu or buttons not found for', menuId);
         return;
     }
@@ -414,23 +423,23 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, chartCanvasId, ba
     // Prevent menu from closing when clicking inside
     menu.onclick = function(e) { e.stopPropagation(); };
 
+    // PNG export
+    pngBtn.onclick = function() {
+        if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
+        menu.classList.add('hidden');
+    };
+
     // JPEG export
     jpegBtn.onclick = function() {
         if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
         menu.classList.add('hidden');
     };
-
-    // SVG export (show message)
-    svgBtn.onclick = function() {
-        showSVGExportMessage();
-        menu.classList.add('hidden');
-    };
 }
 
 // Setup for each chart
-setupExportMenu('export-trajectory-menu-btn', 'export-trajectory-menu', 'trajectoryChartInstance', 'trajectoryChart', 'emission-trajectory');
-setupExportMenu('export-macc-menu-btn', 'export-macc-menu', 'maccChartInstance', 'maccChart', 'macc-analysis');
-setupExportMenu('export-wedge-menu-btn', 'export-wedge-menu', 'wedgeChartInstance', 'wedgeChart', 'abatement-wedges');
+setupExportMenu('export-trajectory-menu-btn', 'export-trajectory-menu', 'trajectoryChartInstance', 'emission-trajectory');
+setupExportMenu('export-macc-menu-btn', 'export-macc-menu', 'maccChartInstance', 'macc-analysis');
+setupExportMenu('export-wedge-menu-btn', 'export-wedge-menu', 'wedgeChartInstance', 'abatement-wedges');
 
 
 // --- Calculation & Data ---
@@ -1548,6 +1557,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Home button uses onclick, assigned to window.
 
 function downloadChartAsJPEG(chartInstance, filename) {
+    // JPEG does not support transparency, so background will be white
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
     link.download = filename;
