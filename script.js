@@ -97,7 +97,7 @@ const baseTrajectoryChartConfig = {
                      usePointStyle: true, padding: 20, font: { size: 13 }, color: '#374151',
                      // Filter hidden datasets from the legend itself
                      filter: function(legendItem, chartData) {
-                         return !legendItem.hidden;
+                         return !legendItem.hidden && legendItem.text !== "";
                      }
                  },
                  onHover: (event, legendItem, legend) => { const canvas = legend.chart.canvas; if (canvas && legendItem && legendItem.text) { canvas.style.cursor = 'pointer'; } },
@@ -682,10 +682,12 @@ function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories,
     // Near-Term Line (Dataset Index 2)
     newChartConfig.data.datasets[2].data = showSBTi ? years.map(() => nearTermTargetLevel) : []; // Assign data only if SBTi active
     newChartConfig.data.datasets[2].hidden = !showSBTi; // Set visibility based on SBTi status
+    newChartConfig.data.datasets[2].label = showSBTi ? "SBTi Near-term" : "";
 
     // Long-Term Line (Dataset Index 3)
     newChartConfig.data.datasets[3].data = showSBTi ? years.map(() => longTermTargetLevel) : []; // Assign data only if SBTi active
     newChartConfig.data.datasets[3].hidden = !showSBTi; // Set visibility based on SBTi status
+    newChartConfig.data.datasets[3].label = showSBTi ? "SBTi Long-term" : "";
 
     // Clear any previous scenario datasets beyond the base 4
     newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
