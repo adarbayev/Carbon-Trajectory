@@ -379,7 +379,6 @@ window.saveAndCloseMeasuresModal = function() {
  }
 
 function downloadChartAsJPEG(chartInstance, filename) {
-    // JPEG does not support transparency, so background will be white
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
     link.download = filename;
@@ -387,7 +386,6 @@ function downloadChartAsJPEG(chartInstance, filename) {
 }
 
 function downloadChartAsPNG(chartInstance, filename) {
-    // PNG is transparent by default
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/png', 1.0);
     link.download = filename;
@@ -409,27 +407,22 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
         return;
     }
 
-    // Toggle menu on button click
     btn.onclick = function(e) {
         e.stopPropagation();
         menu.classList.toggle('hidden');
     };
 
-    // Hide menu when clicking outside
     document.addEventListener('click', function() {
         menu.classList.add('hidden');
     });
 
-    // Prevent menu from closing when clicking inside
     menu.onclick = function(e) { e.stopPropagation(); };
 
-    // PNG export
     pngBtn.onclick = function() {
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
 
-    // JPEG export
     jpegBtn.onclick = function() {
         if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
         menu.classList.add('hidden');
@@ -1557,7 +1550,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // Home button uses onclick, assigned to window.
 
 function downloadChartAsJPEG(chartInstance, filename) {
-    // JPEG does not support transparency, so background will be white
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
     link.download = filename;
