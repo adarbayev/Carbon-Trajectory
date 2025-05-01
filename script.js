@@ -382,7 +382,9 @@ function downloadChartAsPNG(chartInstance, filename) {
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/png', 1.0);
     link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 }
 
 function downloadChartAsJPEG(chartInstance, filename) {
@@ -416,6 +418,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
 
     pngBtn.onclick = function() {
         console.log('PNG export clicked');
+        console.log('Chart instance:', window[chartInstanceName]);
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
@@ -1550,7 +1553,9 @@ function downloadChartAsPNG(chartInstance, filename) {
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/png', 1.0);
     link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 }
 
 function downloadChartAsJPEG(chartInstance, filename) {
@@ -1584,6 +1589,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
 
     pngBtn.onclick = function() {
         console.log('PNG export clicked');
+        console.log('Chart instance:', window[chartInstanceName]);
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
@@ -1603,7 +1609,9 @@ function downloadChartAsPNG(chartInstance, filename) {
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/png', 1.0);
     link.download = filename;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 }
 
 function downloadChartAsJPEG(chartInstance, filename) {
@@ -1637,6 +1645,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
 
     pngBtn.onclick = function() {
         console.log('PNG export clicked');
+        console.log('Chart instance:', window[chartInstanceName]);
         if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
@@ -1646,3 +1655,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
         menu.classList.add('hidden');
     };
 }
+
+window.trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+window.maccChartInstance = new Chart(maccCtx, newChartConfig);
+window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
