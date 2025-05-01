@@ -772,7 +772,7 @@ function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories,
 
     // Create the new chart instance
     try {
-        trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+        window.trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
         console.log("[updateTrajectoryChart] Trajectory chart updated.");
     } catch (error) {
         console.error("Error creating/updating trajectory chart:", error);
@@ -797,7 +797,7 @@ function updateMaccChart(maccDatasets, selectedYear) {
     // Update status text (handled within calculateAllData now)
 
     try {
-        maccChartInstance = new Chart(maccCtx, newChartConfig);
+        window.maccChartInstance = new Chart(maccCtx, newChartConfig);
         console.log("[updateMaccChart] MACC chart updated.");
     } catch (error) {
         console.error("Error creating/updating MACC chart:", error);
@@ -821,7 +821,7 @@ function updateWedgeChart(years, wedgeDatasets) {
      // Update status text (handled within calculateAllData now)
 
      try {
-         wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+         window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
          console.log("[updateWedgeChart] Wedge chart updated.");
      } catch (error) {
          console.error("Error creating/updating Wedge chart:", error);
