@@ -1573,3 +1573,32 @@ function animateNetZero(){
   }
 }
 window.addEventListener('DOMContentLoaded', animateNetZero);
+
+function animateEmissionsArrow(){
+  const path = document.getElementById('emissions-line');
+  if(!path) return;
+
+  const length = path.getTotalLength();
+  // set dash pattern & start fully "un-drawn"
+  path.style.strokeDasharray  = length;
+  path.style.strokeDashoffset = length;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const duration = 3000; // 3 s
+
+  if(prefersReduced){
+    path.style.strokeDashoffset = 0;
+    return;
+  }
+
+  let start = null;
+  function frame(ts){
+    if(start === null) start = ts;
+    const pct = Math.min((ts - start) / duration, 1);
+    path.style.strokeDashoffset = length * (1 - pct);
+    if(pct < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('DOMContentLoaded', animateEmissionsArrow);
