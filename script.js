@@ -378,6 +378,56 @@ window.saveAndCloseMeasuresModal = function() {
     }
  }
 
+function downloadChartAsJPEG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.download = filename;
+    link.click();
+}
+
+function showSVGExportMessage() {
+    alert('SVG export is not supported for Chart.js canvas charts in this version. For true SVG, use a plugin like chartjs-plugin-export-to-svg.');
+}
+
+// Dropdown menu logic
+function setupExportMenu(menuBtnId, menuId, chartInstance, chartCanvasId, baseFilename) {
+    const btn = document.getElementById(menuBtnId);
+    const menu = document.getElementById(menuId);
+    const jpegBtn = menu.querySelector('button[id$="jpeg"]');
+    const svgBtn = menu.querySelector('button[id$="svg"]');
+
+    // Toggle menu on button click
+    btn.onclick = function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+    };
+
+    // Hide menu when clicking outside
+    document.addEventListener('click', function() {
+        menu.classList.add('hidden');
+    });
+
+    // Prevent menu from closing when clicking inside
+    menu.onclick = function(e) { e.stopPropagation(); };
+
+    // JPEG export
+    jpegBtn.onclick = function() {
+        if (window[chartInstance]) downloadChartAsJPEG(window[chartInstance], baseFilename + '.jpg');
+        menu.classList.add('hidden');
+    };
+
+    // SVG export (show message)
+    svgBtn.onclick = function() {
+        showSVGExportMessage();
+        menu.classList.add('hidden');
+    };
+}
+
+// Setup for each chart
+setupExportMenu('export-trajectory-menu-btn', 'export-trajectory-menu', 'trajectoryChartInstance', 'trajectoryChart', 'emission-trajectory');
+setupExportMenu('export-macc-menu-btn', 'export-macc-menu', 'maccChartInstance', 'maccChart', 'macc-analysis');
+setupExportMenu('export-wedge-menu-btn', 'export-wedge-menu', 'wedgeChartInstance', 'wedgeChart', 'abatement-wedges');
+
 
 // --- Calculation & Data ---
 function calculateAllData() {
