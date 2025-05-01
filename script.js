@@ -752,7 +752,33 @@ function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories,
         trajectoryChartInstance.destroy();
         trajectoryChartInstance = null;
     }
-    // ... create new chart
+
+    // Deep copy base config to avoid modification issues
+    const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
+    newChartConfig.data.labels = years;
+
+    // Update base datasets (BAU, Target Path)
+    newChartConfig.data.datasets[0].data = bauData; // BAU
+    newChartConfig.data.datasets[1].data = targetData; // Target Path
+
+    // Update SBTi Target Level Lines
+    const showSBTi = nearTermTargetLevel !== null && longTermTargetLevel !== null;
+    // Near-Term Line (Dataset Index 2)
+    newChartConfig.data.datasets[2].data = showSBTi ? years.map(() => nearTermTargetLevel) : [];
+    newChartConfig.data.datasets[2].hidden = !showSBTi;
+    newChartConfig.data.datasets[2].label = showSBTi ? "SBTi Near-term" : "";
+
+    // Long-Term Line (Dataset Index 3)
+    newChartConfig.data.datasets[3].data = showSBTi ? years.map(() => longTermTargetLevel) : [];
+    newChartConfig.data.datasets[3].hidden = !showSBTi;
+    newChartConfig.data.datasets[3].label = showSBTi ? "SBTi Long-term" : "";
+
+    // Clear any previous scenario datasets beyond the base 4
+    newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
+
+    // Add current scenario trajectories
+    scenarioTrajectories.forEach(sc => newChartConfig.data.datasets.push(sc));
+
     trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
 }
 
@@ -763,18 +789,26 @@ function updateMaccChart(maccDatasets, selectedYear) {
         maccChartInstance.destroy();
         maccChartInstance = null;
     }
+    const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
+    newChartConfig.data.datasets = maccDatasets;
+    newChartConfig.options.scales.x.title.text = `Cumulative Annual Abatement (tCO2eq/yr) - Year ${selectedYear}`;
+    newChartConfig.options.plugins.legend.display = maccDatasets.length > 0;
     maccChartInstance = new Chart(maccCtx, newChartConfig);
 }
 
 // Update Wedge Chart Function
 function updateWedgeChart(years, wedgeDatasets) {
-     if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
-     if (wedgeChartInstance) {
-         wedgeChartInstance.destroy();
-         wedgeChartInstance = null;
-     }
-     wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
- }
+    if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
+    if (wedgeChartInstance) {
+        wedgeChartInstance.destroy();
+        wedgeChartInstance = null;
+    }
+    const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
+    newChartConfig.data.labels = years;
+    newChartConfig.data.datasets = wedgeDatasets;
+    newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
+    wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+}
 
 function updateChart(chartInstanceRef, ctx, config) {
     if (chartInstanceRef.value) {
