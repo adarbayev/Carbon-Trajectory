@@ -230,41 +230,22 @@ const baseWedgeChartConfig = {
 };
 
 // --- Modal Management ---
-function handleModal(modalId, action, saveCallback = null) {
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
-    
-    if (action === 'open') {
-        modal.classList.add('active');
-    } else if (action === 'close') {
-        modal.classList.remove('active');
-    } else if (action === 'save' && typeof saveCallback === 'function') {
-        saveCallback();
-        modal.classList.remove('active');
-    }
-}
-
-// Example refactored usage:
 window.openBaselineModal = function() {
     modalBaselineScope1.value = baselineData.scope1;
     modalBaselineScope2.value = baselineData.scope2;
-    handleModal('baseline-modal', 'open');
-}
-
+    baselineModal.classList.add('active');
+ }
 window.closeBaselineModal = function() {
-    handleModal('baseline-modal', 'close');
-}
-
+    baselineModal.classList.remove('active');
+ }
 window.saveBaselineModal = function() {
-    handleModal('baseline-modal', 'save', () => {
-        baselineData.scope1 = parseFloat(modalBaselineScope1.value) || 0;
-        baselineData.scope2 = parseFloat(modalBaselineScope2.value) || 0;
-        const totalBaseline = baselineData.scope1 + baselineData.scope2;
-        baselineDisplay.textContent = `${totalBaseline.toFixed(0)} tCO2eq`;
-        if (isToolInitialized) debouncedCalculateAllData();
-    });
-}
-
+    baselineData.scope1 = parseFloat(modalBaselineScope1.value) || 0;
+    baselineData.scope2 = parseFloat(modalBaselineScope2.value) || 0;
+    const totalBaseline = baselineData.scope1 + baselineData.scope2;
+    baselineDisplay.textContent = `${totalBaseline.toFixed(0)} tCO2eq`;
+    closeBaselineModal();
+    if (isToolInitialized) debouncedCalculateAllData();
+ }
 window.openGrowthRateModal = function() {
     const baselineYear = parseInt(baselineYearInput.value) || new Date().getFullYear();
     modalGrowthP1Label.textContent = `Period 1 (${baselineYear} - 2030)`;
@@ -397,28 +378,20 @@ window.saveAndCloseMeasuresModal = function() {
     }
  }
 
-function downloadChart(chartInstance, filename, format = 'image/png') {
-    if (!chartInstance) {
-        console.error('Chart instance not found');
-        return false;
-    }
-    
+function downloadChartAsPNG(chartInstance, filename) {
     const link = document.createElement('a');
-    link.href = chartInstance.toBase64Image(format, 1.0);
+    link.href = chartInstance.toBase64Image('image/png', 1.0);
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    return true;
-}
-
-// Then refactor existing functions to use this:
-function downloadChartAsPNG(chartInstance, filename) {
-    return downloadChart(chartInstance, filename, 'image/png');
 }
 
 function downloadChartAsJPEG(chartInstance, filename) {
-    return downloadChart(chartInstance, filename, 'image/jpeg');
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.download = filename;
+    link.click();
 }
 
 function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
@@ -773,126 +746,108 @@ function getAllScenariosData() {
 }
 
 // --- Chart Update Functions ---
-function updateChart(chartType, chartDatasets, additionalParams = {}) {
-    // Determine which chart we're updating
-    let ctx, chartInstance, baseConfig, windowKey;
-    
-    switch(chartType) {
-        case 'macc':
-            ctx = maccCtx;
-            chartInstance = maccChartInstance;
-            baseConfig = baseMaccChartConfig;
-            windowKey = 'maccChartInstance';
-            break;
-        case 'wedge':
-            ctx = wedgeCtx;
-            chartInstance = wedgeChartInstance;
-            baseConfig = baseWedgeChartConfig;
-            windowKey = 'wedgeChartInstance';
-            break;
-        case 'trajectory':
-            ctx = trajectoryCtx;
-            chartInstance = trajectoryChartInstance;
-            baseConfig = baseTrajectoryChartConfig;
-            windowKey = 'trajectoryChartInstance';
-            break;
-        default:
-            console.error(`Unknown chart type: ${chartType}`);
-            return null;
-    }
-    
-    if (!ctx) { 
-        console.error(`${chartType} chart canvas context not found!`); 
-        return null; 
-    }
-    
-    if (chartInstance) {
-        chartInstance.destroy(); // Destroy previous instance
-    }
-    
-    console.log(`[updateChart] Updating ${chartType} chart...`);
-    
-    const newChartConfig = JSON.parse(JSON.stringify(baseConfig));
-    
-    // Apply chart-specific data updates
-    if (chartType === 'macc') {
-        const selectedYear = additionalParams.selectedYear || 2030;
-        newChartConfig.data.datasets = chartDatasets;
-        newChartConfig.options.scales.x.title.text = `Cumulative Annual Abatement (tCO2eq/yr) - Year ${selectedYear}`;
-        newChartConfig.options.plugins.legend.display = chartDatasets.length > 0;
-    } else if (chartType === 'wedge') {
-        const years = additionalParams.years || [];
-        newChartConfig.data.labels = years;
-        newChartConfig.data.datasets = chartDatasets;
-        newChartConfig.options.plugins.legend.display = chartDatasets.length > 0;
-    } else if (chartType === 'trajectory') {
-        const years = additionalParams.years || [];
-        const bauData = additionalParams.bauData || [];
-        const targetData = additionalParams.targetData || [];
-        const scenarioTrajectories = additionalParams.scenarioTrajectories || [];
-        const nearTermTargetLevel = additionalParams.nearTermTargetLevel;
-        const longTermTargetLevel = additionalParams.longTermTargetLevel;
-        
-        // Set up trajectory-specific config
-        newChartConfig.data.labels = years;
-        newChartConfig.data.datasets[0].data = bauData;
-        newChartConfig.data.datasets[1].data = targetData;
-        
-        // Handle SBTi target levels
-        const showSBTi = nearTermTargetLevel !== null && longTermTargetLevel !== null;
-        newChartConfig.data.datasets[2].data = showSBTi ? years.map(() => nearTermTargetLevel) : [];
-        newChartConfig.data.datasets[2].hidden = !showSBTi;
-        newChartConfig.data.datasets[2].label = showSBTi ? "SBTi Near-term" : "";
-        
-        newChartConfig.data.datasets[3].data = showSBTi ? years.map(() => longTermTargetLevel) : [];
-        newChartConfig.data.datasets[3].hidden = !showSBTi;
-        newChartConfig.data.datasets[3].label = showSBTi ? "SBTi Long-term" : "";
-        
-        // Add scenario datasets
-        newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
-        scenarioTrajectories.forEach(sc => newChartConfig.data.datasets.push(sc));
-    }
-    
-    try {
-        window[windowKey] = new Chart(ctx, newChartConfig);
-        console.log(`[updateChart] ${chartType} chart updated successfully.`);
-        return window[windowKey];
-    } catch (error) {
-        console.error(`Error creating/updating ${chartType} chart:`, error);
-        return null;
-    }
-}
-
-// Then refactor your chart update functions:
 function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) {
-    return updateChart('trajectory', null, {
-        years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel
-    });
+    if (!trajectoryCtx) { console.error("Trajectory chart canvas context not found!"); return; }
+    if (trajectoryChartInstance) {
+        trajectoryChartInstance.destroy(); // Destroy previous instance before creating new one
+    }
+
+    // Deep copy base config to avoid modification issues
+    const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
+    newChartConfig.data.labels = years;
+
+    // Update base datasets (BAU, Target Path)
+    newChartConfig.data.datasets[0].data = bauData; // BAU
+    newChartConfig.data.datasets[1].data = targetData; // Target Path
+
+    // Update SBTi Target Level Lines
+    const showSBTi = nearTermTargetLevel !== null && longTermTargetLevel !== null;
+    // Near-Term Line (Dataset Index 2)
+    newChartConfig.data.datasets[2].data = showSBTi ? years.map(() => nearTermTargetLevel) : []; // Assign data only if SBTi active
+    newChartConfig.data.datasets[2].hidden = !showSBTi; // Set visibility based on SBTi status
+    newChartConfig.data.datasets[2].label = showSBTi ? "SBTi Near-term" : "";
+
+    // Long-Term Line (Dataset Index 3)
+    newChartConfig.data.datasets[3].data = showSBTi ? years.map(() => longTermTargetLevel) : []; // Assign data only if SBTi active
+    newChartConfig.data.datasets[3].hidden = !showSBTi; // Set visibility based on SBTi status
+    newChartConfig.data.datasets[3].label = showSBTi ? "SBTi Long-term" : "";
+
+    // Clear any previous scenario datasets beyond the base 4
+    newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
+
+    // Add current scenario trajectories
+    scenarioTrajectories.forEach(sc => newChartConfig.data.datasets.push(sc));
+
+    // Create the new chart instance
+    try {
+        window.trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+        console.log("[updateTrajectoryChart] Trajectory chart updated.");
+    } catch (error) {
+        console.error("Error creating/updating trajectory chart:", error);
+    }
 }
 
+// Update MACC Chart Function
 function updateMaccChart(maccDatasets, selectedYear) {
-    return updateChart('macc', maccDatasets, { selectedYear });
+    if (!maccCtx) { console.error("MACC chart canvas context not found!"); return; }
+    if (maccChartInstance) {
+        maccChartInstance.destroy(); // Destroy previous instance
+    }
+    console.log(`[updateMaccChart] Updating MACC for ${selectedYear}, datasets:`, maccDatasets.length);
+
+    const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
+    newChartConfig.data.datasets = maccDatasets; // Assign the generated datasets
+    // Update X-axis title to include the selected year
+    newChartConfig.options.scales.x.title.text = `Cumulative Annual Abatement (tCO2eq/yr) - Year ${selectedYear}`;
+    // Show legend only if there are measures to display
+    newChartConfig.options.plugins.legend.display = maccDatasets.length > 0;
+
+    // Update status text (handled within calculateAllData now)
+
+    try {
+        window.maccChartInstance = new Chart(maccCtx, newChartConfig);
+        console.log("[updateMaccChart] MACC chart updated.");
+    } catch (error) {
+        console.error("Error creating/updating MACC chart:", error);
+    }
 }
 
+// Update Wedge Chart Function
 function updateWedgeChart(years, wedgeDatasets) {
-    return updateChart('wedge', wedgeDatasets, { years });
-}
+     if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
+     if (wedgeChartInstance) {
+         wedgeChartInstance.destroy(); // Destroy previous instance
+     }
+     console.log("[updateWedgeChart] Updating Wedges, datasets:", wedgeDatasets.length);
+
+     const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
+     newChartConfig.data.labels = years;
+     newChartConfig.data.datasets = wedgeDatasets; // Assign the generated datasets
+     // Show legend only if there are measures
+     newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
+
+     // Update status text (handled within calculateAllData now)
+
+     try {
+         window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+         console.log("[updateWedgeChart] Wedge chart updated.");
+     } catch (error) {
+         console.error("Error creating/updating Wedge chart:", error);
+     }
+ }
+
 
 // --- Event Listeners & Debounce ---
 // Debounce function to limit recalculation frequency on input changes
-function debounce(func, wait, immediate = false) {
+function debounce(func, wait) {
     let timeout;
-    return function() {
-        const context = this;
-        const args = arguments;
-        const later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
         };
-        const callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
     };
 }
 // Create a debounced version of the main calculation function
@@ -1592,39 +1547,3 @@ document.addEventListener('DOMContentLoaded', () => {
         homeSection.style.setProperty('--y', `${yPercent}%`);
     }
 });
-
-function showLoadingIndicator(isLoading, elementId) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    
-    if (isLoading) {
-        element.classList.add('loading');
-        element.dataset.originalContent = element.innerHTML;
-        element.innerHTML = '<div class="spinner"></div> Calculating...';
-    } else {
-        element.classList.remove('loading');
-        if (element.dataset.originalContent) {
-            element.innerHTML = element.dataset.originalContent;
-        }
-    }
-}
-
-// Usage before heavy calculation:
-// showLoadingIndicator(true, 'chart-container');
-// ... calculation ...
-// showLoadingIndicator(false, 'chart-container');
-
-function setChartOptions(chartConfig, options) {
-    // Deep merge options
-    for (const [key, value] of Object.entries(options)) {
-        if (typeof value === 'object' && value !== null && key in chartConfig) {
-            setChartOptions(chartConfig[key], value);
-        } else {
-            chartConfig[key] = value;
-        }
-    }
-}
-
-// Usage:
-// let config = JSON.parse(JSON.stringify(baseChartConfig));
-// setChartOptions(config, { scales: { y: { title: { text: 'New Title' } } } });
