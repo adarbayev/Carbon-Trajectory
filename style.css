@@ -508,3 +508,16 @@ label {
 }
 
 /* ==================================================================== */
+
+/* Simple bounce animation for Leaflet marker */
+@keyframes bounce-once {
+    0%   { transform: translateY(0); }
+    20%  { transform: translateY(-20px); }
+    40%  { transform: translateY(0); }
+    60%  { transform: translateY(-10px); }
+    80%  { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+.bounce-once {
+    animation: bounce-once 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
