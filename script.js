@@ -748,12 +748,10 @@ function getAllScenariosData() {
 // --- Chart Update Functions ---
 function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) {
     if (!trajectoryCtx) { console.error("Trajectory chart canvas context not found!"); return; }
-    if (trajectoryChartInstance) {
-        trajectoryChartInstance.destroy();
-        trajectoryChartInstance = null;
+    if (window.trajectoryChartInstance) {
+        window.trajectoryChartInstance.destroy();
+        window.trajectoryChartInstance = null;
     }
-
-    // Deep copy base config to avoid modification issues
     const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
     newChartConfig.data.labels = years;
 
@@ -779,7 +777,11 @@ function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories,
     // Add current scenario trajectories
     scenarioTrajectories.forEach(sc => newChartConfig.data.datasets.push(sc));
 
-    trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+    window.trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
+
+    console.log("Trajectory chart data:", {
+      years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel
+    });
 }
 
 // Update MACC Chart Function
@@ -1528,3 +1530,5 @@ document.addEventListener('DOMContentLoaded', () => {
         homeSection.style.setProperty('--y', `${yPercent}%`);
     }
 });
+
+console.log("trajectoryCtx:", trajectoryCtx);
