@@ -419,12 +419,20 @@ function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
     pngBtn.onclick = function() {
         console.log('PNG export clicked');
         console.log('Chart instance:', window[chartInstanceName]);
-        if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
+        if (!window[chartInstanceName]) {
+            alert('Chart is not ready yet. Please wait until the chart is displayed.');
+            return;
+        }
+        downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
         menu.classList.add('hidden');
     };
 
     jpegBtn.onclick = function() {
-        if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
+        if (!window[chartInstanceName]) {
+            alert('Chart is not ready yet. Please wait until the chart is displayed.');
+            return;
+        }
+        downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
         menu.classList.add('hidden');
     };
 }
