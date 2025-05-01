@@ -1552,24 +1552,34 @@ function animateNetZero(){
   if(!path) return;
 
   const length = path.getTotalLength();
-  // expose in CSS vars so we can use them for both dasharray & offset
-  path.style.setProperty('--dash', length);
+  path.style.strokeDasharray = length;
+  path.style.strokeDashoffset = length;          // hide path
 
-  const start = performance.now();
-  const duration = 2000;         // 2 s
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const startRGB = [239,68,68];   // red-500
+  const endRGB   = [16,185,129];  // emerald-500
 
-  function frame(t){
-    const pct = Math.min((t - start) / duration, 1);
+  let startTime = null;
+  const duration = 2000; // ms
+
+  function step(ts){
+    if(startTime === null) startTime = ts;
+    const pct = Math.min((ts - startTime) / duration, 1);
+
+    // draw line
     path.style.strokeDashoffset = length * (1 - pct);
 
-    if(pct < 1) requestAnimationFrame(frame);
+    // lerp colour
+    const rgb = startRGB.map((c,i)=>Math.round(c + (endRGB[i]-c)*pct));
+    path.style.stroke = `rgb(${rgb.join(",")})`;
+
+    if(pct < 1) requestAnimationFrame(step);
   }
 
-  if(prefersReduced){
-    path.style.strokeDashoffset = 0;
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    requestAnimationFrame(step);
   }else{
-    requestAnimationFrame(frame);
+    path.style.strokeDashoffset = 0;
+    path.style.stroke = `rgb(${endRGB.join(",")})`;
   }
 }
 window.addEventListener('DOMContentLoaded', animateNetZero);
