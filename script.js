@@ -787,29 +787,43 @@ function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories,
 // Update MACC Chart Function
 function updateMaccChart(maccDatasets, selectedYear) {
     if (!maccCtx) { console.error("MACC chart canvas context not found!"); return; }
-    if (maccChartInstance) {
-        maccChartInstance.destroy();
-        maccChartInstance = null;
+    if (window.maccChartInstance) {
+        window.maccChartInstance.destroy();
+        window.maccChartInstance = null;
     }
     const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
     newChartConfig.data.datasets = maccDatasets;
     newChartConfig.options.scales.x.title.text = `Cumulative Annual Abatement (tCO2eq/yr) - Year ${selectedYear}`;
     newChartConfig.options.plugins.legend.display = maccDatasets.length > 0;
-    maccChartInstance = new Chart(maccCtx, newChartConfig);
+    window.maccChartInstance = new Chart(maccCtx, newChartConfig);
 }
 
 // Update Wedge Chart Function
 function updateWedgeChart(years, wedgeDatasets) {
     if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
-    if (wedgeChartInstance) {
-        wedgeChartInstance.destroy();
-        wedgeChartInstance = null;
+    if (window.wedgeChartInstance) {
+        window.wedgeChartInstance.destroy();
+        window.wedgeChartInstance = null;
     }
     const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
     newChartConfig.data.labels = years;
     newChartConfig.data.datasets = wedgeDatasets;
     newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
-    wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+    window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+}
+
+// Update Wedge Chart Function
+function updateWedgeChart(years, wedgeDatasets) {
+    if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
+    if (window.wedgeChartInstance) {
+        window.wedgeChartInstance.destroy();
+        window.wedgeChartInstance = null;
+    }
+    const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
+    newChartConfig.data.labels = years;
+    newChartConfig.data.datasets = wedgeDatasets;
+    newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
+    window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
 }
 
 function updateChart(chartInstanceRef, ctx, config) {
