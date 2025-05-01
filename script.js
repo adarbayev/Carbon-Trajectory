@@ -369,8 +369,21 @@ function calculateAllData() {
                 });
                 scenarioValues.push(Math.max(0, bauEmissions[i] - yearlyReduction));
             }
-            scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioValues });
-        });
+           // --- CHANGE THIS ---
+// scenarioTrajectories.push({ name: scenario.name, color: scenario.color, data: scenarioValues });
+// --- TO THIS ---
+scenarioTrajectories.push({
+    label: scenario.name, // Use 'label' instead of 'name' for Chart.js legend
+    borderColor: scenario.color,
+    backgroundColor: `${scenario.color}1A`, // Add transparency for background fill
+    data: scenarioValues,
+    fill: false, // Standard styling similar to other lines
+    tension: 0.1,
+    borderWidth: 2,
+    pointRadius: 3,
+    pointHoverRadius: 6,
+    order: 3 // Ensure scenarios plot above target/BAU lines if needed
+});
 
         // Wedge calculations (only for the FIRST scenario)
         const firstScenario = scenariosData[0];
