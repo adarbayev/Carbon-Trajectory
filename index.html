@@ -19,6 +19,37 @@
 </head>
 <body>
 
+    <!-- Full-screen emissions arrow -->
+    <svg id="emissions-arrow"
+         viewBox="0 0 1920 1080"
+         preserveAspectRatio="none"
+         aria-hidden="true">
+      <defs>
+        <!-- Red → amber → green gradient -->
+        <linearGradient id="arrow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#ef4444" />  <!-- red-500 -->
+          <stop offset="50%"  stop-color="#f59e0b" />  <!-- amber-500 -->
+          <stop offset="100%" stop-color="#10b981" />  <!-- emerald-500 -->
+        </linearGradient>
+
+        <!-- Arrowhead marker -->
+        <marker id="arrowhead"
+                orient="auto"
+                markerWidth="12" markerHeight="12"
+                refX="6" refY="6">
+          <path d="M0,0 L12,6 L0,12 Z" fill="url(#arrow-grad)" />
+        </marker>
+      </defs>
+
+      <!-- straight diagonal line -->
+      <path id="emissions-line"
+            d="M 0 0 L 1920 1080"
+            stroke="url(#arrow-grad)"
+            stroke-width="28"
+            stroke-linecap="round"
+            marker-end="url(#arrowhead)" />
+    </svg>
+
     <section id="home-section" class="active">
         <!-- Hero Net-Zero Path (v2) -->
         <svg id="netzero-path" viewBox="0 0 800 120" fill="none" aria-hidden="true">
