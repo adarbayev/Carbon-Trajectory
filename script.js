@@ -1250,10 +1250,6 @@ function handleAddSite() {
          // marker.addTo(riskMapInstance);
     }
 
-    // Optional: Fly map view to the newly added marker
-    // Use a reasonable zoom level, e.g., 10 or higher
-    riskMapInstance.flyTo([lat, lon], Math.max(riskMapInstance.getZoom(), 10));
-
     // Update the list display below the form
     updateSiteListDisplay();
 
