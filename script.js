@@ -389,12 +389,16 @@ function showSVGExportMessage() {
     alert('SVG export is not supported for Chart.js canvas charts in this version. For true SVG, use a plugin like chartjs-plugin-export-to-svg.');
 }
 
-// Dropdown menu logic
-function setupExportMenu(menuBtnId, menuId, chartInstance, chartCanvasId, baseFilename) {
+function setupExportMenu(menuBtnId, menuId, chartInstanceName, chartCanvasId, baseFilename) {
     const btn = document.getElementById(menuBtnId);
     const menu = document.getElementById(menuId);
-    const jpegBtn = menu.querySelector('button[id$="jpeg"]');
-    const svgBtn = menu.querySelector('button[id$="svg"]');
+    const jpegBtn = document.getElementById(menuId.replace('menu', 'jpeg'));
+    const svgBtn = document.getElementById(menuId.replace('menu', 'svg'));
+
+    if (!btn || !menu || !jpegBtn || !svgBtn) {
+        console.error('Export menu or buttons not found for', menuId);
+        return;
+    }
 
     // Toggle menu on button click
     btn.onclick = function(e) {
@@ -412,7 +416,7 @@ function setupExportMenu(menuBtnId, menuId, chartInstance, chartCanvasId, baseFi
 
     // JPEG export
     jpegBtn.onclick = function() {
-        if (window[chartInstance]) downloadChartAsJPEG(window[chartInstance], baseFilename + '.jpg');
+        if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
         menu.classList.add('hidden');
     };
 
