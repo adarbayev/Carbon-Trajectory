@@ -749,93 +749,40 @@ function getAllScenariosData() {
 function updateTrajectoryChart(years, bauData, targetData, scenarioTrajectories, nearTermTargetLevel, longTermTargetLevel) {
     if (!trajectoryCtx) { console.error("Trajectory chart canvas context not found!"); return; }
     if (trajectoryChartInstance) {
-        trajectoryChartInstance.destroy(); // Destroy previous instance before creating new one
+        trajectoryChartInstance.destroy();
+        trajectoryChartInstance = null;
     }
-
-    // Deep copy base config to avoid modification issues
-    const newChartConfig = JSON.parse(JSON.stringify(baseTrajectoryChartConfig));
-    newChartConfig.data.labels = years;
-
-    // Update base datasets (BAU, Target Path)
-    newChartConfig.data.datasets[0].data = bauData; // BAU
-    newChartConfig.data.datasets[1].data = targetData; // Target Path
-
-    // Update SBTi Target Level Lines
-    const showSBTi = nearTermTargetLevel !== null && longTermTargetLevel !== null;
-    // Near-Term Line (Dataset Index 2)
-    newChartConfig.data.datasets[2].data = showSBTi ? years.map(() => nearTermTargetLevel) : []; // Assign data only if SBTi active
-    newChartConfig.data.datasets[2].hidden = !showSBTi; // Set visibility based on SBTi status
-    newChartConfig.data.datasets[2].label = showSBTi ? "SBTi Near-term" : "";
-
-    // Long-Term Line (Dataset Index 3)
-    newChartConfig.data.datasets[3].data = showSBTi ? years.map(() => longTermTargetLevel) : []; // Assign data only if SBTi active
-    newChartConfig.data.datasets[3].hidden = !showSBTi; // Set visibility based on SBTi status
-    newChartConfig.data.datasets[3].label = showSBTi ? "SBTi Long-term" : "";
-
-    // Clear any previous scenario datasets beyond the base 4
-    newChartConfig.data.datasets = newChartConfig.data.datasets.slice(0, 4);
-
-    // Add current scenario trajectories
-    scenarioTrajectories.forEach(sc => newChartConfig.data.datasets.push(sc));
-
-    // Create the new chart instance
-    try {
-        window.trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
-        console.log("[updateTrajectoryChart] Trajectory chart updated.");
-    } catch (error) {
-        console.error("Error creating/updating trajectory chart:", error);
-    }
+    // ... create new chart
+    trajectoryChartInstance = new Chart(trajectoryCtx, newChartConfig);
 }
 
 // Update MACC Chart Function
 function updateMaccChart(maccDatasets, selectedYear) {
     if (!maccCtx) { console.error("MACC chart canvas context not found!"); return; }
     if (maccChartInstance) {
-        maccChartInstance.destroy(); // Destroy previous instance
+        maccChartInstance.destroy();
+        maccChartInstance = null;
     }
-    console.log(`[updateMaccChart] Updating MACC for ${selectedYear}, datasets:`, maccDatasets.length);
-
-    const newChartConfig = JSON.parse(JSON.stringify(baseMaccChartConfig));
-    newChartConfig.data.datasets = maccDatasets; // Assign the generated datasets
-    // Update X-axis title to include the selected year
-    newChartConfig.options.scales.x.title.text = `Cumulative Annual Abatement (tCO2eq/yr) - Year ${selectedYear}`;
-    // Show legend only if there are measures to display
-    newChartConfig.options.plugins.legend.display = maccDatasets.length > 0;
-
-    // Update status text (handled within calculateAllData now)
-
-    try {
-        window.maccChartInstance = new Chart(maccCtx, newChartConfig);
-        console.log("[updateMaccChart] MACC chart updated.");
-    } catch (error) {
-        console.error("Error creating/updating MACC chart:", error);
-    }
+    maccChartInstance = new Chart(maccCtx, newChartConfig);
 }
 
 // Update Wedge Chart Function
 function updateWedgeChart(years, wedgeDatasets) {
      if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
      if (wedgeChartInstance) {
-         wedgeChartInstance.destroy(); // Destroy previous instance
+         wedgeChartInstance.destroy();
+         wedgeChartInstance = null;
      }
-     console.log("[updateWedgeChart] Updating Wedges, datasets:", wedgeDatasets.length);
-
-     const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
-     newChartConfig.data.labels = years;
-     newChartConfig.data.datasets = wedgeDatasets; // Assign the generated datasets
-     // Show legend only if there are measures
-     newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
-
-     // Update status text (handled within calculateAllData now)
-
-     try {
-         window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
-         console.log("[updateWedgeChart] Wedge chart updated.");
-     } catch (error) {
-         console.error("Error creating/updating Wedge chart:", error);
-     }
+     wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
  }
 
+function updateChart(chartInstanceRef, ctx, config) {
+    if (chartInstanceRef.value) {
+        chartInstanceRef.value.destroy();
+        chartInstanceRef.value = null;
+    }
+    chartInstanceRef.value = new Chart(ctx, config);
+}
 
 // --- Event Listeners & Debounce ---
 // Debounce function to limit recalculation frequency on input changes
