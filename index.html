@@ -123,6 +123,22 @@
                 </div>
                 <h2 class="section-header text-center mb-1">Marginal Abatement Cost Curve (MACC)</h2>
                 <p id="macc-scenario-info" class="text-sm text-center text-slate-600 mb-4">Analysis based on measures in the first scenario.</p>
+                <div class="relative inline-block text-left mb-2 export-menu">
+                  <button class="export-btn" id="export-macc-menu-btn" title="Export chart">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/><path d="M16 16l-4 4-4-4"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M3 15a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4v8z"/>
+                    </svg>
+                  </button>
+                  <div id="export-macc-menu" class="hidden absolute right-0 z-10 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div class="py-1">
+                      <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="export-macc-png">Export as PNG</button>
+                      <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="export-macc-jpeg">Export as JPEG</button>
+                    </div>
+                  </div>
+                </div>
                 <div class="macc-chart-container"><canvas id="maccChart"></canvas></div>
                 <p class="text-xs text-slate-500 mt-4 text-center"> *X-axis shows cumulative abatement (tCO2eq/yr) for the selected year. Step length shows measure's abatement.<br> *Y-axis shows Marginal Abatement Cost ($/tCO2eq) for each measure step.<br> *Calculations use annualized cost and annual abatement for the selected year.</p>
             </div>
@@ -130,6 +146,22 @@
             <div id="tab-content-wedges" class="tab-content hidden">
                  <h2 class="section-header text-center mb-1">Abatement Wedges</h2>
                  <p id="wedge-scenario-info" class="text-sm text-center text-slate-600 mb-4">Shows cumulative annual abatement per measure for the first scenario.</p>
+                 <div class="relative inline-block text-left mb-2 export-menu">
+                   <button class="export-btn" id="export-wedge-menu-btn" title="Export chart">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/><path d="M16 16l-4 4-4-4"/>
+                     </svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                       <path d="M3 15a4 4 0 004 4h10a4 4 0 004-4V7a4 4 0 00-4-4H7a4 4 0 00-4 4v8z"/>
+                     </svg>
+                   </button>
+                   <div id="export-wedge-menu" class="hidden absolute right-0 z-10 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                     <div class="py-1">
+                       <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="export-wedge-png">Export as PNG</button>
+                       <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="export-wedge-jpeg">Export as JPEG</button>
+                     </div>
+                   </div>
+                 </div>
                  <div class="wedge-chart-container"><canvas id="wedgeChart"></canvas></div>
                  <p class="text-xs text-slate-500 mt-4 text-center">*Each colored area represents the annual abatement (tCO2eq/yr) contributed by a specific measure.</p>
             </div>
