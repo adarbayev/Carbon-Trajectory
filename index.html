@@ -20,28 +20,12 @@
 <body>
 
     <section id="home-section" class="active">
-        <!-- Hero Net-Zero Path (v2) -->
-        <svg id="netzero-path" viewBox="0 0 800 120" fill="none" aria-hidden="true">
-          <defs>
-            <!-- red → amber → green gradient -->
-            <linearGradient id="netzero-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%"   stop-color="#ef4444" />
-              <stop offset="50%"  stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#10b981" />
-            </linearGradient>
-            <!-- soft shadow -->
-            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25" />
-            </filter>
-          </defs>
-
-          <!-- smoother, lower arc; never touches the headline -->
+        <!-- Animated Net-Zero Path -->
+        <svg id="netzero-path" viewBox="0 0 600 160" fill="none" aria-hidden="true">
           <path id="netzero-line"
-                d="M 0 90 C 160 40, 480 140, 800 60"
-                stroke-width="8"
-                stroke="url(#netzero-grad)"
+                d="M10 140 Q 150 20, 300 80 T 590 20"
                 stroke-linecap="round"
-                filter="url(#shadow)" />
+                stroke-width="8"/>
         </svg>
         <h1 class="home-title">Kömir Zero</h1>
         <p class="home-subtitle">From Carbon Data to Action.</p>
