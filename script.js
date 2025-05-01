@@ -378,13 +378,6 @@ window.saveAndCloseMeasuresModal = function() {
     }
  }
 
-function downloadChartAsJPEG(chartInstance, filename) {
-    const link = document.createElement('a');
-    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
-    link.download = filename;
-    link.click();
-}
-
 function downloadChartAsPNG(chartInstance, filename) {
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/png', 1.0);
@@ -392,8 +385,11 @@ function downloadChartAsPNG(chartInstance, filename) {
     link.click();
 }
 
-function showSVGExportMessage() {
-    alert('SVG export is not supported for Chart.js canvas charts. Use JPEG/PNG instead. For true SVG, use a plugin like chartjs-plugin-export-to-svg.');
+function downloadChartAsJPEG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.download = filename;
+    link.click();
 }
 
 function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
@@ -1549,6 +1545,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Tab buttons use onclick, assigned to window.
 // Home button uses onclick, assigned to window.
 
+function downloadChartAsPNG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/png', 1.0);
+    link.download = filename;
+    link.click();
+}
+
 function downloadChartAsJPEG(chartInstance, filename) {
     const link = document.createElement('a');
     link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
@@ -1556,44 +1559,50 @@ function downloadChartAsJPEG(chartInstance, filename) {
     link.click();
 }
 
-// Chart.js does not natively support SVG export, but you can use the canvas-to-svg approach or a plugin.
-// For now, we'll use a workaround: export as PNG and rename to SVG (not true SVG, but a placeholder).
-// For a real SVG, you would need to use a library like chartjs-plugin-export-to-svg or render with SVG context.
+function setupExportMenu(menuBtnId, menuId, chartInstanceName, baseFilename) {
+    const btn = document.getElementById(menuBtnId);
+    const menu = document.getElementById(menuId);
+    const pngBtn = document.getElementById(menuId.replace('menu', 'png'));
+    const jpegBtn = document.getElementById(menuId.replace('menu', 'jpeg'));
 
-function downloadChartAsSVG(chartId, filename) {
-    const canvas = document.getElementById(chartId);
-    // Try to use toDataURL('image/svg+xml') if supported (not standard for canvas)
-    try {
-        const dataUrl = canvas.toDataURL('image/svg+xml');
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = filename;
-        link.click();
-    } catch (e) {
-        alert('SVG export is not supported in this browser. Try JPEG instead.');
+    if (!btn || !menu || !pngBtn || !jpegBtn) {
+        console.error('Export menu or buttons not found for', menuId);
+        return;
     }
+
+    btn.onclick = function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+    };
+
+    document.addEventListener('click', function() {
+        menu.classList.add('hidden');
+    });
+
+    menu.onclick = function(e) { e.stopPropagation(); };
+
+    pngBtn.onclick = function() {
+        if (window[chartInstanceName]) downloadChartAsPNG(window[chartInstanceName], baseFilename + '.png');
+        menu.classList.add('hidden');
+    };
+
+    jpegBtn.onclick = function() {
+        if (window[chartInstanceName]) downloadChartAsJPEG(window[chartInstanceName], baseFilename + '.jpg');
+        menu.classList.add('hidden');
+    };
 }
 
-// Trajectory
-document.getElementById('export-trajectory-jpeg').onclick = function() {
-    if (trajectoryChartInstance) downloadChartAsJPEG(trajectoryChartInstance, 'emission-trajectory.jpg');
-};
-document.getElementById('export-trajectory-svg').onclick = function() {
-    downloadChartAsSVG('trajectoryChart', 'emission-trajectory.svg');
-};
+// Setup for each chart
+setupExportMenu('export-trajectory-menu-btn', 'export-trajectory-menu', 'trajectoryChartInstance', 'emission-trajectory');
+setupExportMenu('export-macc-menu-btn', 'export-macc-menu', 'maccChartInstance', 'macc-analysis');
+setupExportMenu('export-wedge-menu-btn', 'export-wedge-menu', 'wedgeChartInstance', 'abatement-wedges');
 
 // MACC
 document.getElementById('export-macc-jpeg').onclick = function() {
     if (maccChartInstance) downloadChartAsJPEG(maccChartInstance, 'macc-analysis.jpg');
 };
-document.getElementById('export-macc-svg').onclick = function() {
-    downloadChartAsSVG('maccChart', 'macc-analysis.svg');
-};
 
 // Wedges
 document.getElementById('export-wedge-jpeg').onclick = function() {
     if (wedgeChartInstance) downloadChartAsJPEG(wedgeChartInstance, 'abatement-wedges.jpg');
-};
-document.getElementById('export-wedge-svg').onclick = function() {
-    downloadChartAsSVG('wedgeChart', 'abatement-wedges.svg');
 };
