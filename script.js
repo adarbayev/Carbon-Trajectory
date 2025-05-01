@@ -1492,3 +1492,52 @@ document.addEventListener('DOMContentLoaded', () => {
 // Scenario buttons use onclick, assigned to window.
 // Tab buttons use onclick, assigned to window.
 // Home button uses onclick, assigned to window.
+
+function downloadChartAsJPEG(chartInstance, filename) {
+    const link = document.createElement('a');
+    link.href = chartInstance.toBase64Image('image/jpeg', 1.0);
+    link.download = filename;
+    link.click();
+}
+
+// Chart.js does not natively support SVG export, but you can use the canvas-to-svg approach or a plugin.
+// For now, we'll use a workaround: export as PNG and rename to SVG (not true SVG, but a placeholder).
+// For a real SVG, you would need to use a library like chartjs-plugin-export-to-svg or render with SVG context.
+
+function downloadChartAsSVG(chartId, filename) {
+    const canvas = document.getElementById(chartId);
+    // Try to use toDataURL('image/svg+xml') if supported (not standard for canvas)
+    try {
+        const dataUrl = canvas.toDataURL('image/svg+xml');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = filename;
+        link.click();
+    } catch (e) {
+        alert('SVG export is not supported in this browser. Try JPEG instead.');
+    }
+}
+
+// Trajectory
+document.getElementById('export-trajectory-jpeg').onclick = function() {
+    if (trajectoryChartInstance) downloadChartAsJPEG(trajectoryChartInstance, 'emission-trajectory.jpg');
+};
+document.getElementById('export-trajectory-svg').onclick = function() {
+    downloadChartAsSVG('trajectoryChart', 'emission-trajectory.svg');
+};
+
+// MACC
+document.getElementById('export-macc-jpeg').onclick = function() {
+    if (maccChartInstance) downloadChartAsJPEG(maccChartInstance, 'macc-analysis.jpg');
+};
+document.getElementById('export-macc-svg').onclick = function() {
+    downloadChartAsSVG('maccChart', 'macc-analysis.svg');
+};
+
+// Wedges
+document.getElementById('export-wedge-jpeg').onclick = function() {
+    if (wedgeChartInstance) downloadChartAsJPEG(wedgeChartInstance, 'abatement-wedges.jpg');
+};
+document.getElementById('export-wedge-svg').onclick = function() {
+    downloadChartAsSVG('wedgeChart', 'abatement-wedges.svg');
+};
