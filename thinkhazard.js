@@ -1,11 +1,37 @@
+/**********************************************************************
+ *  thinkhazard.js
+ *  Fetch physical-climate-risk levels for a site via your Cloudflare
+ *  Worker proxy (CORS-safe, cached 24 h on the edge).
+ *********************************************************************/
+
+const PROXY_ENDPOINT = 'https://dry-sky-3b8b.aa-darbayev.workers.dev';
+
+export const LEVEL_COLOUR = {
+  'Very Low': '#c7f0d8',
+  'Low'     : '#a3e4b1',
+  'Medium'  : '#fddc7a',
+  'High'    : '#f86e5c'
+};
+
 export async function fetchHazards(lat, lon) {
-  const target = `https://www.thinkhazard.org/en/report/bycoordinates.json?lat=${lat}&lon=${lon}`;
-  const proxy  = 'https://api.allorigins.win/raw?url=';   // adds CORS header
-  const url    = proxy + encodeURIComponent(target);
+  const url = `${PROXY_ENDPOINT}?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+  console.log('[ThinkHazard URL]', url);
 
-  console.log('[ThinkHazard URL]', url);                 // should start with api.allorigins
+  try {
+    const res = await fetch(url, { cache: 'force-cache' });
+    if (!res.ok) throw new Error(`Proxy responded ${res.status}`);
+    const hazards = await res.json();
+    return hazards;
+  } catch (err) {
+    console.error('[ThinkHazard] fetch failed:', err);
+    return null;
+  }
+}
 
-  const res = await fetch(url);                          // CORS now OK
-  if (!res.ok) throw new Error('proxy failed');
-  return res.json().then(j => j.hazards);
+export function getWorstHazard(hazards) {
+  if (!hazards || !hazards.length) return null;
+  const rank = { 'Very Low': 0, 'Low': 1, 'Medium': 2, 'High': 3 };
+  return hazards.reduce((worst, h) =>
+    rank[h.level] > rank[worst.level] ? h : worst
+  , hazards[0]);
 }
