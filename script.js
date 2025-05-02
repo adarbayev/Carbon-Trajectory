@@ -1,5 +1,3 @@
-import { fetchHazards, getWorstHazard, LEVEL_COLOUR } from './thinkhazard.js';
-
 // --- DOM Elements ---
 const homeSection = document.getElementById('home-section');
 const toolSection = document.getElementById('tool-section');
@@ -814,6 +812,20 @@ function updateWedgeChart(years, wedgeDatasets) {
     window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
 }
 
+// Update Wedge Chart Function
+function updateWedgeChart(years, wedgeDatasets) {
+    if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
+    if (window.wedgeChartInstance) {
+        window.wedgeChartInstance.destroy();
+        window.wedgeChartInstance = null;
+    }
+    const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
+    newChartConfig.data.labels = years;
+    newChartConfig.data.datasets = wedgeDatasets;
+    newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
+    window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
+}
+
 function updateChart(chartInstanceRef, ctx, config) {
     if (chartInstanceRef.value) {
         chartInstanceRef.value.destroy();
@@ -1232,7 +1244,7 @@ function initializeRiskMap() {
     }
 }
 
-async function handleAddSite() {
+function handleAddSite() {
     // Ensure map and form exist
     if (!riskMapInstance || !siteInputForm) {
         console.error("Map instance or site form not found.");
@@ -1269,10 +1281,25 @@ async function handleAddSite() {
     });
 
     // --- Create Popup Content ---
+    // Basic info from the form
     let popupContent = `<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}`;
     if (site.code) popupContent += `<br>Code: ${site.code}`;
     if (site.type) popupContent += `<br>Type: ${site.type}`;
-    popupContent += `<br><hr><i>Loading risk data...</i>`;
+
+    // --- Placeholder for Risk Data Integration ---
+    // This is where you would fetch or calculate risk data based on lat/lon
+    // and potentially the selected RCP scenario (though that's not fully implemented here)
+    // Example:
+    // const risks = getRiskData(lat, lon, selectedRcp); // Hypothetical function
+    // if (risks) {
+    //    popupContent += `<br><hr><b>Risks (${selectedRcp}):</b>`;
+    //    popupContent += `<br>- Fluvial Flooding: <span style="color: blue;">${risks.fluvial}</span>`;
+    //    popupContent += `<br>- Extreme Heat: <span style="color: red;">${risks.heat}</span>`;
+    //    // ... add other risks
+    // } else {
+         popupContent += `<br><hr><i>Risk data integration pending.</i>`;
+    // }
+    // ----------------------------------------------
     marker.bindPopup(popupContent);
 
     // Add the marker to the dedicated layer group
@@ -1280,22 +1307,9 @@ async function handleAddSite() {
          siteMarkersLayer.addLayer(marker);
     } else {
          console.error("Site markers layer group not initialized.");
+         // Fallback: add directly to map (less manageable)
+         // marker.addTo(riskMapInstance);
     }
-
-    // Fetch ThinkHazard risks and update popup
-    fetchHazards(lat, lon).then(hazardsArr => {
-        const hazards = Object.fromEntries(hazardsArr.map(h => [h.hazard, h.level]));
-        site.hazards = hazards;
-        let riskHtml = Object.entries(hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join('<br>');
-        if (!riskHtml) riskHtml = '<i>No hazard data available.</i>';
-        const updatedContent = `<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}` +
-            (site.code ? `<br>Code: ${site.code}` : '') +
-            (site.type ? `<br>Type: ${site.type}` : '') +
-            `<br><hr><b>Risks:</b><br>${riskHtml}`;
-        marker.getPopup().setContent(updatedContent);
-    }).catch(e => {
-        marker.getPopup().setContent(`<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}<br><hr><span style='color:red'>Failed to load risk data.</span>`);
-    });
 
     // Update the list display below the form
     updateSiteListDisplay();
@@ -1305,8 +1319,8 @@ async function handleAddSite() {
     if(lonInput) lonInput.value = '';
     if(nameInput) nameInput.value = '';
     if(codeInput) codeInput.value = '';
-    if(typeInput) typeInput.value = '';
-    if(nameInput) nameInput.focus();
+    if(typeInput) typeInput.value = ''; // Reset dropdown
+    if(nameInput) nameInput.focus(); // Set focus back to the name input
 
     console.log("Added site:", site);
 
@@ -1314,7 +1328,7 @@ async function handleAddSite() {
     const markerIcon = marker._icon;
     if (markerIcon) {
         markerIcon.classList.add('bounce-once');
-        setTimeout(() => markerIcon.classList.remove('bounce-once'), 700);
+        setTimeout(() => markerIcon.classList.remove('bounce-once'), 700); // Duration matches CSS
     }
 }
 
@@ -1479,11 +1493,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listener for the "Try Tool" button
      tryToolBtn?.addEventListener('click', () => {
-         showPage('tool-section');
+         console.log("[tryToolBtn] Clicked! Showing tool section.");
+         showPage('tool-section'); // Start transition to tool page
+         // Initialize the tool *after* the transition starts/completes
+         // Delay matches the transition time
          setTimeout(() => {
-             if (!isToolInitialized) {
-                 initializeTool();
-             }
+              if (!isToolInitialized) {
+                   initializeTool();
+              }
          }, 500);
      });
 
@@ -1529,114 +1546,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log("trajectoryCtx:", trajectoryCtx);
-
-// === ThinkHazard Integration for Climate Risk Tab ===
-
-// Hazard level color mapping
-const levelColor = {
-  "Very Low": "#c7f0d8",
-  "Low":      "#a3e4b1",
-  "Medium":   "#fddc7a",
-  "High":     "#f86e5c"
-};
-
-// Utility: Load sites from localStorage
-function getSites() {
-  try {
-    const raw = localStorage.getItem('sitesData');
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch (e) {
-    console.error('Failed to load sites from storage', e);
-    return [];
-  }
-}
-// Utility: Save sites to localStorage
-function saveSites(sites) {
-  try {
-    localStorage.setItem('sitesData', JSON.stringify(sites));
-  } catch (e) {
-    console.error('Failed to save sites to storage', e);
-  }
-}
-
-// Debounce helper for API rate limit
-let lastHazardFetch = 0;
-async function debounceHazardFetch() {
-  const now = Date.now();
-  const elapsed = now - lastHazardFetch;
-  if (elapsed < 1100) await new Promise(r => setTimeout(r, 1100 - elapsed));
-  lastHazardFetch = Date.now();
-}
-
-// Load and render all site markers with hazard data
-async function loadRiskMarkers() {
-  let sites = getSites();
-  for (const s of sites) {
-    if (!s.hazards) {
-      await debounceHazardFetch();
-      try {
-        const hazardsArr = await fetchHazards(s.lat, s.lon);
-        if (hazardsArr) {
-          const worstHazard = getWorstHazard(hazardsArr);
-          const colour = LEVEL_COLOUR[worstHazard.level];
-          // Use `colour` for marker, and show hazard info in popup
-          // Convert array to object for caching if needed:
-          s.hazards = Object.fromEntries(hazardsArr.map(h => [h.hazard, h.level]));
-        } else {
-          // Show "Failed to load risk data"
-        }
-        saveSites(sites); // cache result
-      } catch (e) {
-        s.hazards = {};
-        saveSites(sites);
-        console.error('Hazard fetch failed for', s.name, e);
-      }
-    }
-    // Determine worst hazard level
-    const worst = Object.values(s.hazards).sort((a, b) => ["Very Low", "Low", "Medium", "High"].indexOf(b) - ["Very Low", "Low", "Medium", "High"].indexOf(a))[0] || "Very Low";
-    // Add marker to map
-    if (typeof L !== 'undefined' && riskMapInstance) {
-      const marker = L.circleMarker([s.lat, s.lon], {
-        radius: 8,
-        color: colour,
-        fillOpacity: 0.8
-      }).addTo(riskMapInstance);
-      marker.bindPopup(renderHazardPopup(s));
-      // Accessibility: add aria-label
-      if (marker._path) marker._path.setAttribute('aria-label', `hazard level ${worst}`);
-    }
-    addRiskRowToSidebar(s, worst);
-  }
-}
-
-function renderHazardPopup(site) {
-  return `
-    <h3>${site.name}</h3>
-    ${Object.entries(site.hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join('<br>')}
-  `;
-}
-
-function addRiskRowToSidebar(site, worst) {
-  // Add to #riskSidebar (or #site-list if preferred)
-  const sidebar = document.getElementById('riskSidebar');
-  if (!sidebar) return;
-  const row = document.createElement('div');
-  row.className = 'flex items-center mb-2';
-  row.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${colour};margin-right:6px" aria-label="hazard level ${worst}"></span> <b>${site.name}</b> (${site.lat.toFixed(2)}, ${site.lon.toFixed(2)})`;
-  // Add hazard breakdown
-  if (site.hazards && Object.keys(site.hazards).length) {
-    const details = document.createElement('div');
-    details.className = 'ml-4 text-xs';
-    details.innerHTML = Object.entries(site.hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join(' | ');
-    row.appendChild(details);
-  }
-  sidebar.appendChild(row);
-}
-
-// On DOMContentLoaded, load risk markers if on risk tab
-window.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('risk-map-container')) {
-    loadRiskMarkers();
-  }
-});
