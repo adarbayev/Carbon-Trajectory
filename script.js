@@ -1,3 +1,5 @@
+import { fetchHazards } from './thinkhazard.js';
+
 // --- DOM Elements ---
 const homeSection = document.getElementById('home-section');
 const toolSection = document.getElementById('tool-section');
@@ -1575,16 +1577,6 @@ function saveSites(sites) {
   } catch (e) {
     console.error('Failed to save sites to storage', e);
   }
-}
-
-// Import ThinkHazard fetcher
-// (Assume fetchHazards is globally available or inline here for plain JS)
-async function fetchHazards(lat, lon) {
-  const url = `https://www.thinkhazard.org/en/report/bycoordinates?lat=${lat}&lon=${lon}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('ThinkHazard fetch failed');
-  const json = await res.json();
-  return json.hazards; // array of {hazard, level, ...}
 }
 
 // Debounce helper for API rate limit
