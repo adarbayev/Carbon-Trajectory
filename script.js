@@ -1,4 +1,4 @@
-import { fetchHazards } from './thinkhazard.js';
+import { fetchHazards, getWorstHazard, LEVEL_COLOUR } from './thinkhazard.js';
 
 // --- DOM Elements ---
 const homeSection = document.getElementById('home-section');
@@ -1576,8 +1576,16 @@ async function loadRiskMarkers() {
     if (!s.hazards) {
       await debounceHazardFetch();
       try {
-        const hz = await fetchHazards(s.lat, s.lon);
-        s.hazards = Object.fromEntries(hz.map(h => [h.hazard, h.level]));
+        const hazardsArr = await fetchHazards(s.lat, s.lon);
+        if (hazardsArr) {
+          const worstHazard = getWorstHazard(hazardsArr);
+          const colour = LEVEL_COLOUR[worstHazard.level];
+          // Use `colour` for marker, and show hazard info in popup
+          // Convert array to object for caching if needed:
+          s.hazards = Object.fromEntries(hazardsArr.map(h => [h.hazard, h.level]));
+        } else {
+          // Show "Failed to load risk data"
+        }
         saveSites(sites); // cache result
       } catch (e) {
         s.hazards = {};
@@ -1591,7 +1599,7 @@ async function loadRiskMarkers() {
     if (typeof L !== 'undefined' && riskMapInstance) {
       const marker = L.circleMarker([s.lat, s.lon], {
         radius: 8,
-        color: levelColor[worst],
+        color: colour,
         fillOpacity: 0.8
       }).addTo(riskMapInstance);
       marker.bindPopup(renderHazardPopup(s));
@@ -1615,7 +1623,7 @@ function addRiskRowToSidebar(site, worst) {
   if (!sidebar) return;
   const row = document.createElement('div');
   row.className = 'flex items-center mb-2';
-  row.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${levelColor[worst]};margin-right:6px" aria-label="hazard level ${worst}"></span> <b>${site.name}</b> (${site.lat.toFixed(2)}, ${site.lon.toFixed(2)})`;
+  row.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${colour};margin-right:6px" aria-label="hazard level ${worst}"></span> <b>${site.name}</b> (${site.lat.toFixed(2)}, ${site.lon.toFixed(2)})`;
   // Add hazard breakdown
   if (site.hazards && Object.keys(site.hazards).length) {
     const details = document.createElement('div');
