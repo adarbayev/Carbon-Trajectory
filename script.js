@@ -814,20 +814,6 @@ function updateWedgeChart(years, wedgeDatasets) {
     window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
 }
 
-// Update Wedge Chart Function
-function updateWedgeChart(years, wedgeDatasets) {
-    if (!wedgeCtx) { console.error("Wedge chart canvas context not found!"); return; }
-    if (window.wedgeChartInstance) {
-        window.wedgeChartInstance.destroy();
-        window.wedgeChartInstance = null;
-    }
-    const newChartConfig = JSON.parse(JSON.stringify(baseWedgeChartConfig));
-    newChartConfig.data.labels = years;
-    newChartConfig.data.datasets = wedgeDatasets;
-    newChartConfig.options.plugins.legend.display = wedgeDatasets.length > 0;
-    window.wedgeChartInstance = new Chart(wedgeCtx, newChartConfig);
-}
-
 function updateChart(chartInstanceRef, ctx, config) {
     if (chartInstanceRef.value) {
         chartInstanceRef.value.destroy();
@@ -1495,14 +1481,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Listener for the "Try Tool" button
      tryToolBtn?.addEventListener('click', () => {
-         console.log("[tryToolBtn] Clicked! Showing tool section.");
-         showPage('tool-section'); // Start transition to tool page
-         // Initialize the tool *after* the transition starts/completes
-         // Delay matches the transition time
+         showPage('tool-section');
          setTimeout(() => {
-              if (!isToolInitialized) {
-                   initializeTool();
-              }
+             if (!isToolInitialized) {
+                 initializeTool();
+             }
          }, 500);
      });
 
