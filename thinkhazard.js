@@ -1,6 +1,7 @@
 export async function fetchHazards(lat, lon) {
   const target = `https://www.thinkhazard.org/en/report/bycoordinates.json?lat=${lat}&lon=${lon}`;
-  const url    = 'https://corsproxy.io/?' + encodeURIComponent(target);
+  const proxy = 'https://thingproxy.freeboard.io/fetch/';
+  const url = proxy + target;
 
   console.log('[ThinkHazard URL]', url);
 
