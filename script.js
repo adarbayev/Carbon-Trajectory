@@ -1684,3 +1684,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   loadCompanyDataFromStore();
 });
+
+// --- SPA Hash Routing ---
+function handleHashRouting() {
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  if (hash === 'company') {
+    showPage('company');
+  } else if (hash === 'dashboard') {
+    showPage('dashboard');
+  } else {
+    showPage('home');
+  }
+}
+window.addEventListener('hashchange', handleHashRouting);
+document.addEventListener('DOMContentLoaded', () => {
+  handleHashRouting(); // Show correct section on initial load
+});
