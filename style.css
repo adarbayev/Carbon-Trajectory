@@ -468,8 +468,8 @@ label {
 
 /* Map Legend Styles */
 #risk-map-legend {
-    margin-top: 0.5rem;
-    /* Already styled for flex, border, rounded, etc. */
+    /* Uses Tailwind classes primarily in HTML */
+    /* Add custom styles here if needed */
 }
 .legend-icon {
     display: inline-block;
