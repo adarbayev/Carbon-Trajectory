@@ -1546,3 +1546,116 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log("trajectoryCtx:", trajectoryCtx);
+
+// === ThinkHazard Integration for Climate Risk Tab ===
+
+// Hazard level color mapping
+const levelColor = {
+  "Very Low": "#c7f0d8",
+  "Low":      "#a3e4b1",
+  "Medium":   "#fddc7a",
+  "High":     "#f86e5c"
+};
+
+// Utility: Load sites from localStorage
+function getSites() {
+  try {
+    const raw = localStorage.getItem('sitesData');
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Failed to load sites from storage', e);
+    return [];
+  }
+}
+// Utility: Save sites to localStorage
+function saveSites(sites) {
+  try {
+    localStorage.setItem('sitesData', JSON.stringify(sites));
+  } catch (e) {
+    console.error('Failed to save sites to storage', e);
+  }
+}
+
+// Import ThinkHazard fetcher
+// (Assume fetchHazards is globally available or inline here for plain JS)
+async function fetchHazards(lat, lon) {
+  const url = `https://www.thinkhazard.org/en/report/bycoordinates?lat=${lat}&lon=${lon}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('ThinkHazard fetch failed');
+  const json = await res.json();
+  return json.hazards; // array of {hazard, level, ...}
+}
+
+// Debounce helper for API rate limit
+let lastHazardFetch = 0;
+async function debounceHazardFetch() {
+  const now = Date.now();
+  const elapsed = now - lastHazardFetch;
+  if (elapsed < 1100) await new Promise(r => setTimeout(r, 1100 - elapsed));
+  lastHazardFetch = Date.now();
+}
+
+// Load and render all site markers with hazard data
+async function loadRiskMarkers() {
+  let sites = getSites();
+  for (const s of sites) {
+    if (!s.hazards) {
+      await debounceHazardFetch();
+      try {
+        const hz = await fetchHazards(s.lat, s.lon);
+        s.hazards = Object.fromEntries(hz.map(h => [h.hazard, h.level]));
+        saveSites(sites); // cache result
+      } catch (e) {
+        s.hazards = {};
+        saveSites(sites);
+        console.error('Hazard fetch failed for', s.name, e);
+      }
+    }
+    // Determine worst hazard level
+    const worst = Object.values(s.hazards).sort((a, b) => ["Very Low", "Low", "Medium", "High"].indexOf(b) - ["Very Low", "Low", "Medium", "High"].indexOf(a))[0] || "Very Low";
+    // Add marker to map
+    if (typeof L !== 'undefined' && riskMapInstance) {
+      const marker = L.circleMarker([s.lat, s.lon], {
+        radius: 8,
+        color: levelColor[worst],
+        fillOpacity: 0.8
+      }).addTo(riskMapInstance);
+      marker.bindPopup(renderHazardPopup(s));
+      // Accessibility: add aria-label
+      if (marker._path) marker._path.setAttribute('aria-label', `hazard level ${worst}`);
+    }
+    addRiskRowToSidebar(s, worst);
+  }
+}
+
+function renderHazardPopup(site) {
+  return `
+    <h3>${site.name}</h3>
+    ${Object.entries(site.hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join('<br>')}
+  `;
+}
+
+function addRiskRowToSidebar(site, worst) {
+  // Add to #riskSidebar (or #site-list if preferred)
+  const sidebar = document.getElementById('riskSidebar');
+  if (!sidebar) return;
+  const row = document.createElement('div');
+  row.className = 'flex items-center mb-2';
+  row.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${levelColor[worst]};margin-right:6px" aria-label="hazard level ${worst}"></span> <b>${site.name}</b> (${site.lat.toFixed(2)}, ${site.lon.toFixed(2)})`;
+  // Add hazard breakdown
+  if (site.hazards && Object.keys(site.hazards).length) {
+    const details = document.createElement('div');
+    details.className = 'ml-4 text-xs';
+    details.innerHTML = Object.entries(site.hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join(' | ');
+    row.appendChild(details);
+  }
+  sidebar.appendChild(row);
+}
+
+// On DOMContentLoaded, load risk markers if on risk tab
+window.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('risk-map-container')) {
+    loadRiskMarkers();
+  }
+});
