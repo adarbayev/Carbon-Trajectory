@@ -535,3 +535,5 @@ label {
 }
 .export-menu .hidden { display: none; }
 .export-menu .block { display: block; }
+
+.risk-legend span{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:4px}
