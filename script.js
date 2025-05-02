@@ -1232,7 +1232,7 @@ function initializeRiskMap() {
     }
 }
 
-function handleAddSite() {
+async function handleAddSite() {
     // Ensure map and form exist
     if (!riskMapInstance || !siteInputForm) {
         console.error("Map instance or site form not found.");
@@ -1269,25 +1269,10 @@ function handleAddSite() {
     });
 
     // --- Create Popup Content ---
-    // Basic info from the form
     let popupContent = `<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}`;
     if (site.code) popupContent += `<br>Code: ${site.code}`;
     if (site.type) popupContent += `<br>Type: ${site.type}`;
-
-    // --- Placeholder for Risk Data Integration ---
-    // This is where you would fetch or calculate risk data based on lat/lon
-    // and potentially the selected RCP scenario (though that's not fully implemented here)
-    // Example:
-    // const risks = getRiskData(lat, lon, selectedRcp); // Hypothetical function
-    // if (risks) {
-    //    popupContent += `<br><hr><b>Risks (${selectedRcp}):</b>`;
-    //    popupContent += `<br>- Fluvial Flooding: <span style="color: blue;">${risks.fluvial}</span>`;
-    //    popupContent += `<br>- Extreme Heat: <span style="color: red;">${risks.heat}</span>`;
-    //    // ... add other risks
-    // } else {
-         popupContent += `<br><hr><i>Risk data integration pending.</i>`;
-    // }
-    // ----------------------------------------------
+    popupContent += `<br><hr><i>Loading risk data...</i>`;
     marker.bindPopup(popupContent);
 
     // Add the marker to the dedicated layer group
@@ -1295,9 +1280,22 @@ function handleAddSite() {
          siteMarkersLayer.addLayer(marker);
     } else {
          console.error("Site markers layer group not initialized.");
-         // Fallback: add directly to map (less manageable)
-         // marker.addTo(riskMapInstance);
     }
+
+    // Fetch ThinkHazard risks and update popup
+    fetchHazards(lat, lon).then(hazardsArr => {
+        const hazards = Object.fromEntries(hazardsArr.map(h => [h.hazard, h.level]));
+        site.hazards = hazards;
+        let riskHtml = Object.entries(hazards).map(([h, l]) => `${h}: <b>${l}</b>`).join('<br>');
+        if (!riskHtml) riskHtml = '<i>No hazard data available.</i>';
+        const updatedContent = `<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}` +
+            (site.code ? `<br>Code: ${site.code}` : '') +
+            (site.type ? `<br>Type: ${site.type}` : '') +
+            `<br><hr><b>Risks:</b><br>${riskHtml}`;
+        marker.getPopup().setContent(updatedContent);
+    }).catch(e => {
+        marker.getPopup().setContent(`<b>${site.name}</b><br>Coordinates: ${site.lat.toFixed(4)}, ${site.lon.toFixed(4)}<br><hr><span style='color:red'>Failed to load risk data.</span>`);
+    });
 
     // Update the list display below the form
     updateSiteListDisplay();
@@ -1307,8 +1305,8 @@ function handleAddSite() {
     if(lonInput) lonInput.value = '';
     if(nameInput) nameInput.value = '';
     if(codeInput) codeInput.value = '';
-    if(typeInput) typeInput.value = ''; // Reset dropdown
-    if(nameInput) nameInput.focus(); // Set focus back to the name input
+    if(typeInput) typeInput.value = '';
+    if(nameInput) nameInput.focus();
 
     console.log("Added site:", site);
 
@@ -1316,7 +1314,7 @@ function handleAddSite() {
     const markerIcon = marker._icon;
     if (markerIcon) {
         markerIcon.classList.add('bounce-once');
-        setTimeout(() => markerIcon.classList.remove('bounce-once'), 700); // Duration matches CSS
+        setTimeout(() => markerIcon.classList.remove('bounce-once'), 700);
     }
 }
 
