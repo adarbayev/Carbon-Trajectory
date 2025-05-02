@@ -1546,3 +1546,138 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log("trajectoryCtx:", trajectoryCtx);
+
+// --- Navigation and Page Toggling ---
+function showPage(page) {
+  const homeSection = document.getElementById('home-section');
+  const companySection = document.getElementById('company-section');
+  const dashboardSection = document.getElementById('dashboard-section');
+  const navHome = document.getElementById('nav-home');
+  const navCompany = document.getElementById('nav-company');
+  const navDashboard = document.getElementById('nav-dashboard');
+
+  // Hide all
+  homeSection.classList.add('hidden', 'opacity-0');
+  companySection.classList.add('hidden', 'opacity-0');
+  dashboardSection.classList.add('hidden', 'opacity-0');
+  navHome.setAttribute('aria-selected', 'false');
+  navCompany.setAttribute('aria-selected', 'false');
+  navDashboard.setAttribute('aria-selected', 'false');
+
+  // Show selected
+  if (page === 'home') {
+    homeSection.classList.remove('hidden', 'opacity-0');
+    navHome.setAttribute('aria-selected', 'true');
+  } else if (page === 'company') {
+    companySection.classList.remove('hidden', 'opacity-0');
+    navCompany.setAttribute('aria-selected', 'true');
+  } else if (page === 'dashboard') {
+    dashboardSection.classList.remove('hidden', 'opacity-0');
+    navDashboard.setAttribute('aria-selected', 'true');
+  }
+}
+window.showPage = showPage;
+
+// --- Company Page Logic ---
+let companyData = {
+  companyName: '',
+  baselineYear: '',
+  sites: []
+};
+
+let unitHelpers = null;
+let pageStore = null;
+
+async function loadHelpers() {
+  if (!unitHelpers) unitHelpers = await import('./unitHelpers.js');
+  if (!pageStore) pageStore = await import('./pageStore.js');
+}
+
+async function renderSitesTable() {
+  await loadHelpers();
+  const tbody = document.getElementById('sites-table-body');
+  tbody.innerHTML = '';
+  companyData.sites.forEach((site, idx) => {
+    let tco2eq = '-';
+    if (unitHelpers) {
+      const fuel = unitHelpers.fuelToTCO2eq(site.fuelAmount, site.fuelUnit);
+      const elec = unitHelpers.elecToTCO2eq(site.elecAmount, site.elecUnit);
+      tco2eq = (fuel + elec).toFixed(2);
+    }
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="px-2 py-1">${site.name}</td>
+      <td class="px-2 py-1">${site.code}</td>
+      <td class="px-2 py-1">${site.lat}</td>
+      <td class="px-2 py-1">${site.lon}</td>
+      <td class="px-2 py-1">${site.fuelAmount} ${site.fuelUnit}</td>
+      <td class="px-2 py-1">${site.elecAmount} ${site.elecUnit}</td>
+      <td class="px-2 py-1">${tco2eq}</td>
+      <td class="px-2 py-1"><button type="button" class="text-red-500" onclick="removeSite(${idx})">Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+window.renderSitesTable = renderSitesTable;
+
+async function removeSite(idx) {
+  companyData.sites.splice(idx, 1);
+  await renderSitesTable();
+  await saveCompanyDataToStore();
+}
+window.removeSite = removeSite;
+
+// --- Site Modal Logic ---
+function openSiteModal() {
+  document.getElementById('site-modal').classList.remove('hidden');
+}
+function closeSiteModal() {
+  document.getElementById('site-modal').classList.add('hidden');
+}
+window.closeSiteModal = closeSiteModal;
+
+async function saveCompanyDataToStore() {
+  await loadHelpers();
+  if (pageStore) pageStore.saveCompanyData(companyData);
+}
+
+async function loadCompanyDataFromStore() {
+  await loadHelpers();
+  const loaded = pageStore ? pageStore.loadCompanyData() : null;
+  if (loaded) {
+    companyData = loaded;
+    document.getElementById('company-name').value = companyData.companyName || '';
+    document.getElementById('company-baseline-year').value = companyData.baselineYear || '';
+    await renderSitesTable();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('add-site-modal-btn').addEventListener('click', openSiteModal);
+  document.getElementById('site-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const site = {
+      name: document.getElementById('site-modal-name').value,
+      code: document.getElementById('site-modal-code').value,
+      lat: document.getElementById('site-modal-lat').value,
+      lon: document.getElementById('site-modal-lon').value,
+      fuelAmount: document.getElementById('site-modal-fuel-amount').value,
+      fuelUnit: document.getElementById('site-modal-fuel-unit').value,
+      elecAmount: document.getElementById('site-modal-elec-amount').value,
+      elecUnit: document.getElementById('site-modal-elec-unit').value
+    };
+    companyData.sites.push(site);
+    await renderSitesTable();
+    await saveCompanyDataToStore();
+    closeSiteModal();
+    this.reset();
+  });
+  document.getElementById('company-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    companyData.companyName = document.getElementById('company-name').value;
+    companyData.baselineYear = document.getElementById('company-baseline-year').value;
+    await saveCompanyDataToStore();
+    alert('Company saved!');
+  });
+  loadCompanyDataFromStore();
+});
