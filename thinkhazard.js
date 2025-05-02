@@ -1,7 +1,8 @@
 export async function fetchHazards(lat, lon) {
-  const url  = `https://www.thinkhazard.org/en/report/bycoordinates?lat=${lat}&lon=${lon}`;
-  const prox = 'https://corsproxy.io/?url=';  // NEW: use url=
-  const res  = await fetch(prox + encodeURIComponent(url)); // encode the URL
+  const target = `https://www.thinkhazard.org/en/report/bycoordinates?lat=${lat}&lon=${lon}`;
+  const proxy  = 'https://corsproxy.io/?';                  // ← no url=
+  const res    = await fetch(proxy + encodeURIComponent(target));
+
   if (!res.ok) throw new Error('proxy failed');
   return res.json().then(j => j.hazards);
 } 
