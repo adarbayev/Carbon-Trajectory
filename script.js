@@ -1575,6 +1575,9 @@ function showPage(page) {
     dashboardSection.classList.remove('hidden', 'opacity-0');
     navDashboard.setAttribute('aria-selected', 'true');
   }
+
+  // Always scroll to top after showing the new section
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.showPage = showPage;
 
