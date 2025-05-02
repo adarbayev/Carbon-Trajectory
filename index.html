@@ -216,9 +216,9 @@
                         </div>
                     </div> <div class="md:col-span-2 p-0 rounded-lg flex flex-col">
                          <div id="risk-map-container" class="w-full h-[60vh] md:h-[75vh] rounded border border-slate-300 mb-3 bg-slate-100">
-                            <p class="p-4 text-slate-500">Map loading...</p>
+                            <p class="p-4 text-slate-500">Map loading...</p> {/* Loading text */}
                          </div>
-                         <div id="risk-map-legend" class="text-xs flex flex-wrap gap-x-4 gap-y-1 justify-center p-2 border rounded bg-slate-50 mt-2">
+                         <div id="risk-map-legend" class="text-xs flex flex-wrap gap-x-4 gap-y-1 justify-center p-2 border rounded bg-slate-50">
                             <span><i class="legend-icon fluvial"></i> Fluvial Flooding</span>
                             <span><i class="legend-icon coastal"></i> Coastal Flooding</span>
                             <span><i class="legend-icon cyclone"></i> Tropical Cyclones</span>
@@ -229,10 +229,7 @@
     <div id="growth-rate-modal" class="modal-overlay"> <div class="modal-content relative"> <button class="modal-close-btn" onclick="closeGrowthRateModal()">&times;</button> <h3 class="modal-header">Edit Growth Rates (% of Baseline / Year)</h3> <div class="space-y-4"> <div> <label id="modal-growth-p1-label" for="modal-growth-p1" class="block text-sm font-medium text-gray-700 mb-1">Period 1 (2024 - 2030)</label> <input type="number" id="modal-growth-p1" value="2.0" step="0.1" class="w-full shadow-sm"> </div> <div> <label for="modal-growth-p2" class="block text-sm font-medium text-gray-700 mb-1">Period 2 (2031 - 2040)</label> <input type="number" id="modal-growth-p2" value="1.5" step="0.1" class="w-full shadow-sm"> </div> <div> <label for="modal-growth-p3" class="block text-sm font-medium text-gray-700 mb-1">Period 3 (2041 - 2050)</label> <input type="number" id="modal-growth-p3" value="1.0" step="0.1" class="w-full shadow-sm"> </div> </div> <div class="modal-footer"> <button type="button" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="closeGrowthRateModal()">Cancel</button> <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveGrowthRateModal()">Save Rates</button> </div> </div> </div>
     <div id="measures-modal" class="modal-overlay"> <div class="modal-content relative"> <button class="modal-close-btn" onclick="closeMeasuresModal()">&times;</button> <h3 id="measures-modal-title" class="modal-header">Edit Measures for Scenario</h3> <div id="modal-measures-list" class="modal-measures-container max-h-96 overflow-y-auto pr-2 space-y-4 mb-4"></div> <button id="modal-add-measure-btn" class="add-btn w-full justify-center"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> Add New Measure </button> <div class="modal-footer"> <button type="button" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700" onclick="saveAndCloseMeasuresModal()">Save and Close</button> </div> </div> </div>
 
-    <div id="riskSidebar"></div>
-    <div id="riskMap"></div>
-
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
