@@ -21,7 +21,7 @@
   <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-20 bg-white border-r border-gray-200 flex flex-col items-center py-6 fixed left-0 top-0 bottom-0 z-30">
-      <a class="mb-8 focus:outline-none group" aria-label="Home" id="nav-home" href="#home" aria-selected="true">
+      <a class="mb-8 focus:outline-none group" aria-label="Home" id="nav-home" href="#home" onclick="showPage('home')" aria-selected="true">
         <span class="block">
           <!-- Home SVG Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8 text-emerald-600 group-hover:text-emerald-500 transition-colors drop-shadow-none group-hover:drop-shadow-[0_0_8px_#34d399]">
@@ -31,7 +31,7 @@
         </span>
         <span class="sr-only">Home</span>
       </a>
-      <a class="mb-8 focus:outline-none group" aria-label="Company" id="nav-company" href="#company" aria-selected="false">
+      <a class="mb-8 focus:outline-none group" aria-label="Company" id="nav-company" href="#company" onclick="showPage('company')" aria-selected="false">
         <span class="block">
           <!-- Factory/Company SVG Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8 text-emerald-600 group-hover:text-emerald-500 transition-colors drop-shadow-none group-hover:drop-shadow-[0_0_8px_#34d399]">
@@ -42,7 +42,7 @@
         </span>
         <span class="sr-only">Company</span>
       </a>
-      <a class="focus:outline-none group" aria-label="Dashboard" id="nav-dashboard" href="#dashboard" aria-selected="false">
+      <a class="focus:outline-none group" aria-label="Dashboard" id="nav-dashboard" href="#dashboard" onclick="showPage('dashboard')" aria-selected="false">
         <span class="block">
           <!-- Dashboard/Chart SVG Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-8 h-8 text-emerald-600 group-hover:text-emerald-500 transition-colors drop-shadow-none group-hover:drop-shadow-[0_0_8px_#34d399]">
@@ -55,11 +55,11 @@
       </a>
     </aside>
     <!-- Main Content -->
-    <main id="main-content" class="flex-1 ml-20">
+    <main class="flex-1 ml-20">
       <section id="home-section" class="active">
         <h1 class="home-title">Kömir Zero</h1>
         <p class="home-subtitle">From Carbon Data to Action.</p>
-        <a id="try-tool-btn" class="try-tool-btn" href="#company">Plan. Price. Decarbonise</a>
+        <button id="try-tool-btn" class="try-tool-btn" onclick="showPage('company')">Plan. Price. Decarbonise</button>
         <p class="attribution">
           Built by Anvar Darbayev
           <a href="https://www.linkedin.com/in/anvard/" target="_blank" rel="noopener noreferrer" title="Anvar Darbayev LinkedIn">
