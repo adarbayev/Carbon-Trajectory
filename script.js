@@ -1555,7 +1555,6 @@ function showPage(page) {
   const navHome = document.getElementById('nav-home');
   const navCompany = document.getElementById('nav-company');
   const navDashboard = document.getElementById('nav-dashboard');
-
   // Hide all
   homeSection.classList.add('hidden', 'opacity-0');
   companySection.classList.add('hidden', 'opacity-0');
@@ -1563,23 +1562,78 @@ function showPage(page) {
   navHome.setAttribute('aria-selected', 'false');
   navCompany.setAttribute('aria-selected', 'false');
   navDashboard.setAttribute('aria-selected', 'false');
-
+  navHome.classList.remove('ring-2', 'ring-emerald-400');
+  navCompany.classList.remove('ring-2', 'ring-emerald-400');
+  navDashboard.classList.remove('ring-2', 'ring-emerald-400');
   // Show selected
   if (page === 'home') {
     homeSection.classList.remove('hidden', 'opacity-0');
     navHome.setAttribute('aria-selected', 'true');
+    navHome.classList.add('ring-2', 'ring-emerald-400');
   } else if (page === 'company') {
     companySection.classList.remove('hidden', 'opacity-0');
     navCompany.setAttribute('aria-selected', 'true');
+    navCompany.classList.add('ring-2', 'ring-emerald-400');
   } else if (page === 'dashboard') {
     dashboardSection.classList.remove('hidden', 'opacity-0');
     navDashboard.setAttribute('aria-selected', 'true');
+    navDashboard.classList.add('ring-2', 'ring-emerald-400');
   }
-
-  // Always scroll to top after showing the new section
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Always scroll to top of main content
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.showPage = showPage;
+
+// --- SPA Hash Routing ---
+function handleHashRouting() {
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  if (hash === 'company') {
+    showPage('company');
+  } else if (hash === 'dashboard') {
+    showPage('dashboard');
+  } else {
+    showPage('home');
+  }
+}
+window.addEventListener('hashchange', handleHashRouting);
+document.addEventListener('DOMContentLoaded', () => {
+  handleHashRouting(); // Show correct section on initial load
+  // Attach add-site modal logic only once
+  const addSiteBtnModal = document.getElementById('add-site-modal-btn');
+  if (addSiteBtnModal) {
+    addSiteBtnModal.addEventListener('click', function() {
+      document.getElementById('site-modal').classList.remove('hidden');
+    });
+  }
+  const siteForm = document.getElementById('site-form');
+  if (siteForm) {
+    siteForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const site = {
+        name: document.getElementById('site-modal-name').value,
+        code: document.getElementById('site-modal-code').value,
+        lat: document.getElementById('site-modal-lat').value,
+        lon: document.getElementById('site-modal-lon').value,
+        fuelAmount: document.getElementById('site-modal-fuel-amount').value,
+        fuelUnit: document.getElementById('site-modal-fuel-unit').value,
+        elecAmount: document.getElementById('site-modal-elec-amount').value,
+        elecUnit: document.getElementById('site-modal-elec-unit').value
+      };
+      companyData.sites.push(site);
+      await renderSitesTable();
+      await saveCompanyDataToStore();
+      document.getElementById('site-modal').classList.add('hidden');
+      this.reset();
+    });
+  }
+  const closeSiteModalBtn = document.querySelector('#site-modal .modal-close-btn');
+  if (closeSiteModalBtn) {
+    closeSiteModalBtn.addEventListener('click', function() {
+      document.getElementById('site-modal').classList.add('hidden');
+    });
+  }
+});
 
 // --- Company Page Logic ---
 let companyData = {
@@ -1683,20 +1737,4 @@ document.addEventListener('DOMContentLoaded', function() {
     alert('Company saved!');
   });
   loadCompanyDataFromStore();
-});
-
-// --- SPA Hash Routing ---
-function handleHashRouting() {
-  const hash = window.location.hash.replace('#', '').toLowerCase();
-  if (hash === 'company') {
-    showPage('company');
-  } else if (hash === 'dashboard') {
-    showPage('dashboard');
-  } else {
-    showPage('home');
-  }
-}
-window.addEventListener('hashchange', handleHashRouting);
-document.addEventListener('DOMContentLoaded', () => {
-  handleHashRouting(); // Show correct section on initial load
 });
